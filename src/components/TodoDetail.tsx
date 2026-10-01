@@ -12,7 +12,7 @@ type Props = {
   creator: Person | null
   assignees: Person[]
   notes: { id: string; authorName: string; body: string; createdAt: string }[]
-  requests: { id: string; userId: string; name: string }[]
+  requests: { id: string; userId: string; name: string; message: string | null }[]
   assignable: Person[]
   myRequestId: string | null
   canEdit: boolean
@@ -128,7 +128,7 @@ export default function TodoDetail({
             <dd>
               <ul className="person-list">
                 {requests.map((r) => (
-                  <li key={r.id}>
+                  <li key={r.id} className="person-list__request">
                     <span className="person">
                       <Avatar name={r.name} seed={r.userId} size={22} />
                       {shortName(r.name)}
@@ -143,6 +143,7 @@ export default function TodoDetail({
                         </button>
                       </span>
                     )}
+                    {r.message && <q className="request-message">{r.message}</q>}
                   </li>
                 ))}
               </ul>

@@ -1,0 +1,25 @@
+.my-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 900px;
+}
+
+.my-tasks h1 {
+  margin: 0 0 var(--space-1);
+}
+
+.my-tasks .segmented {
+  align-self: flex-start;
+}
+
+.my-tasks__empty {
+  padding: var(--space-5) 0;
+  text-align: center;
+}
+
+.my-tasks__chevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-muted);
+}

@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          message: string | null
           resolved_at: string | null
           resolved_by: string | null
           status: Database["public"]["Enums"]["request_status"]
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          message?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
           status?: Database["public"]["Enums"]["request_status"]
@@ -36,6 +38,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          message?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
           status?: Database["public"]["Enums"]["request_status"]
@@ -133,6 +136,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          status: Database["public"]["Enums"]["project_status"]
         }
         Insert: {
           created_at?: string
@@ -140,6 +144,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          status?: Database["public"]["Enums"]["project_status"]
         }
         Update: {
           created_at?: string
@@ -147,6 +152,7 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          status?: Database["public"]["Enums"]["project_status"]
         }
         Relationships: [
           {
@@ -331,6 +337,7 @@ export type Database = {
     }
     Enums: {
       project_role: "manager" | "contributor"
+      project_status: "planned" | "active" | "on_hold" | "completed"
       request_status: "pending" | "approved" | "rejected"
       todo_state: "undone" | "in_progress" | "done"
     }
@@ -461,6 +468,7 @@ export const Constants = {
   public: {
     Enums: {
       project_role: ["manager", "contributor"],
+      project_status: ["planned", "active", "on_hold", "completed"],
       request_status: ["pending", "approved", "rejected"],
       todo_state: ["undone", "in_progress", "done"],
     },

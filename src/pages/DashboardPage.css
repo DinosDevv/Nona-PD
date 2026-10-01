@@ -90,3 +90,46 @@
   display: inline-flex;
   color: var(--color-muted);
 }
+
+/* Stat tiles */
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (max-width: 760px) {
+  .stat-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.stat-tile__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.stat-tile__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.stat-tile__value {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.project-row__status {
+  flex-shrink: 0;
+  width: 96px;
+}

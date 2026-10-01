@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useProjects } from '../hooks/useProjects'
 import Avatar from '../components/Avatar'
 import Modal from '../components/Modal'
+import StatTiles from '../components/StatTiles'
 import { ChevronRightIcon, PlusIcon } from '../components/icons'
 import { progressOf } from '../lib/todoView'
-import { projectManager } from '../lib/projectView'
-import { shortName } from '../lib/people'
+import { PROJECT_STATUS_LABELS, projectManager, statusCounts } from '../lib/projectView'
+import { firstName, shortName } from '../lib/people'
+import { useMyProfile } from '../hooks/useMyProfile'
 import './DashboardPage.css'
 
 function greeting(now = new Date()) {
@@ -19,6 +21,7 @@ function greeting(now = new Date()) {
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { projects, error, create } = useProjects()
+  const { profile } = useMyProfile()
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -33,7 +36,7 @@ export default function DashboardPage() {
     <div className="dashboard">
       <div className="page-header">
         <div>
-          <h1>{greeting()} 👋</h1>
+          <h1>{greeting()}{profile ? `, ${firstName(profile.full_name)}` : ''} 👋</h1>
           <p className="muted">Here's what's happening with your projects.</p>
         </div>
         <button onClick={() => setShowForm(true)}>
@@ -41,6 +44,8 @@ export default function DashboardPage() {
         </button>
       </div>
       {error && <p className="error">{error}</p>}
+
+      {projects && <StatTiles {...statusCounts(projects)} />}
 
       <section className="stack">
         <h2>Your Projects</h2>
@@ -67,6 +72,9 @@ export default function DashboardPage() {
                         <div className="progress__bar" style={{ width: `${progress.percent}%` }} />
                       </div>
                     </div>
+                    <span className="project-row__status">
+                      <span className={`badge badge--project-${p.status}`}>{PROJECT_STATUS_LABELS[p.status]}</span>
+                    </span>
                     {pm && (
                       <div className="project-row__pm">
                         <Avatar name={pm.name} seed={pm.id} size={30} />

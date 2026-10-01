@@ -1,7 +1,7 @@
 import { CheckIcon, XIcon } from './icons'
 
 type Props = {
-  requests: { id: string; requesterName: string; todoTitle: string }[]
+  requests: { id: string; requesterName: string; todoTitle: string; message: string | null }[]
   onResolve: (requestId: string, approve: boolean) => void
 }
 
@@ -14,8 +14,11 @@ export default function PendingRequests({ requests, onResolve }: Props) {
       <ul className="stack">
         {requests.map((r) => (
           <li key={r.id} className="pending-requests__row">
-            <span>
-              <strong>{r.requesterName}</strong> <span className="muted">wants</span> {r.todoTitle}
+            <span className="pending-requests__text">
+              <span>
+                <strong>{r.requesterName}</strong> <span className="muted">wants</span> {r.todoTitle}
+              </span>
+              {r.message && <q className="request-message">{r.message}</q>}
             </span>
             <span className="row">
               <button type="button" className="icon-button" title="Approve" aria-label={`Approve ${r.requesterName}`} onClick={() => onResolve(r.id, true)}>

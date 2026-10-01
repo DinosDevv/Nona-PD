@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { getProject, type Project } from '../api/projects'
+import { deleteProject, getProject, updateProject, type Project, type ProjectStatus } from '../api/projects'
 import {
   addMember,
   listMembers,
@@ -98,7 +98,8 @@ export function useProject(projectId: string) {
       run(() => createNote({ todoId, body, userId })),
     myRequestId,
     canRequest,
-    requestAssignment: (todoId: string) => run(() => requestAssignment({ todoId, userId })),
+    requestAssignment: (todoId: string, message: string) =>
+      run(() => requestAssignment({ todoId, userId, message })),
     withdrawRequest: (requestId: string) => run(() => withdrawRequest(requestId)),
     resolveRequest: (requestId: string, approve: boolean) =>
       run(() => resolveRequest(requestId, approve)),
@@ -111,5 +112,17 @@ export function useProject(projectId: string) {
     removeMember: (memberId: string) => run(() => removeMember(projectId, memberId)),
     assign: (todoId: string, memberId: string) => run(() => assignUser(todoId, memberId)),
     unassign: (todoId: string, memberId: string) => run(() => unassignUser(todoId, memberId)),
+    updateProject: (input: { name: string; description: string; status: ProjectStatus }) =>
+      run(() => updateProject(projectId, input)),
+    // No reload after deleting — the page navigates away
+    deleteProject: async () => {
+      try {
+        await deleteProject(projectId)
+        return true
+      } catch (e) {
+        setError((e as Error).message)
+        return false
+      }
+    },
   }
 }

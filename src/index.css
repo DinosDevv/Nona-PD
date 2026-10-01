@@ -339,3 +339,44 @@ button:disabled {
   gap: var(--space-2);
   padding: var(--space-4);
 }
+
+/* Project status pills */
+.badge--project-active {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--color-status-done);
+}
+
+.badge--project-on_hold {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--color-status-in-progress);
+}
+
+.badge--project-planned {
+  background: var(--color-primary-soft);
+  color: #8fb0ff;
+}
+
+.badge--project-completed {
+  background: var(--color-surface-2);
+  color: var(--color-muted);
+  border: 1px solid var(--color-border);
+}
+
+.button--danger {
+  background: transparent;
+  border-color: rgba(242, 92, 92, 0.4);
+  color: var(--color-danger);
+}
+
+.button--danger:hover:not(:disabled) {
+  background: rgba(242, 92, 92, 0.12);
+}
+
+/* Small status dot (members, team) */
+.status-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-status-done);
+}

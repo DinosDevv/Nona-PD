@@ -3,18 +3,19 @@ import type { Enums, Tables } from '../types/database'
 
 export type TodoState = Enums<'todo_state'>
 export type TodoNote = Pick<Tables<'todo_notes'>, 'id' | 'body' | 'user_id' | 'created_at'>
-export type TodoRequest = Pick<Tables<'assignment_requests'>, 'id' | 'user_id'>
+export type TodoRequest = Pick<Tables<'assignment_requests'>, 'id' | 'user_id' | 'message'>
 export type Todo = Tables<'todos'> & {
   todo_assignees: { user_id: string }[]
   todo_notes: TodoNote[]
   assignment_requests: TodoRequest[]
 }
+export type MyTask = Tables<'todos'> & { projects: { id: string; name: string } | null }
 
 export async function listTodos(projectId: string): Promise<Todo[]> {
   const { data, error } = await supabase
     .from('todos')
     .select(
-      '*, todo_assignees(user_id), todo_notes(id, body, user_id, created_at), assignment_requests(id, user_id)',
+      '*, todo_assignees(user_id), todo_notes(id, body, user_id, created_at), assignment_requests(id, user_id, message)',
     )
     .eq('project_id', projectId)
     .eq('assignment_requests.status', 'pending') // filters the embedded requests, not the to-dos
@@ -45,4 +46,16 @@ export async function createTodo(input: {
 export async function setTodoState(todoId: string, state: TodoState): Promise<void> {
   const { error } = await supabase.from('todos').update({ state }).eq('id', todoId)
   if (error) throw error
+}
+
+// Open to-dos assigned to this user, across all their projects
+export async function listMyTasks(userId: string): Promise<MyTask[]> {
+  const { data, error } = await supabase
+    .from('todos')
+    .select('*, projects(id, name), todo_assignees!inner(user_id)')
+    .eq('todo_assignees.user_id', userId)
+    .neq('state', 'done')
+    .order('deadline', { ascending: true, nullsFirst: false })
+  if (error) throw error
+  return data
 }

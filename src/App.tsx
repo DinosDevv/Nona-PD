@@ -4,6 +4,8 @@ import RequireAuth from './components/RequireAuth'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectPage from './pages/ProjectPage'
+import MyTasksPage from './pages/MyTasksPage'
+import TeamPage from './pages/TeamPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
@@ -20,6 +22,8 @@ export default function App() {
         }
       >
         <Route index element={<DashboardPage />} />
+        <Route path="tasks" element={<MyTasksPage />} />
+        <Route path="team" element={<TeamPage />} />
         <Route path="project/:projectId" element={<ProjectPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />

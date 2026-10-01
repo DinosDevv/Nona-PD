@@ -1,4 +1,16 @@
-import type { ProjectSummary } from '../api/projects'
+import type { ProjectStatus, ProjectSummary } from '../api/projects'
+
+export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
+  planned: 'Planned',
+  active: 'Active',
+  on_hold: 'On Hold',
+  completed: 'Completed',
+}
+
+export function statusCounts(projects: { status: ProjectStatus }[]) {
+  const count = (s: ProjectStatus) => projects.filter((p) => p.status === s).length
+  return { total: projects.length, active: count('active'), onHold: count('on_hold'), completed: count('completed') }
+}
 
 // The creator if they're still a PM, otherwise the first PM listed
 export function projectManager(project: ProjectSummary) {

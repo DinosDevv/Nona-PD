@@ -3,6 +3,7 @@ import { STATE_LABELS, dueLabel, isOverdue } from '../lib/todoView'
 import { shortName } from '../lib/people'
 import { AvatarStack } from './Avatar'
 import { AlertIcon, CalendarIcon, CheckIcon } from './icons'
+import './TodoRow.css'
 
 type Props = {
   todo: Todo

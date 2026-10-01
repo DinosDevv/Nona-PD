@@ -11,8 +11,18 @@ export const STATE_LABELS: Record<TodoState, string> = {
 export type StateFilter = 'all' | TodoState
 export type SortKey = 'deadline' | 'newest' | 'title'
 
-export function isOverdue(todo: Todo, now = new Date()) {
+type Dated = { state: TodoState; deadline: string | null }
+
+export const DUE_SOON_DAYS = 3
+
+export function isOverdue(todo: Dated, now = new Date()) {
   return todo.state !== 'done' && todo.deadline !== null && new Date(todo.deadline) < now
+}
+
+export function isDueSoon(todo: Dated, now = new Date()) {
+  if (todo.state === 'done' || !todo.deadline) return false
+  const due = new Date(todo.deadline).getTime()
+  return due >= now.getTime() && due <= now.getTime() + DUE_SOON_DAYS * 86_400_000
 }
 
 function startOfDay(d: Date) {

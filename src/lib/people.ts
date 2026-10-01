@@ -12,3 +12,8 @@ export function initials(name: string) {
 export function shortName(name: string) {
   return name.split('@')[0]
 }
+
+// "Konstantinos Bourdakos" -> "Konstantinos"; emails -> local part
+export function firstName(name: string) {
+  return shortName(name).split(/\s+/)[0]
+}

@@ -1,9 +1,10 @@
 import { supabase } from '../lib/supabase'
-import type { Tables } from '../types/database'
+import type { Enums, Tables } from '../types/database'
 import type { ProjectRole } from './members'
 import type { TodoState } from './todos'
 
 export type Project = Tables<'projects'>
+export type ProjectStatus = Enums<'project_status'>
 export type ProjectSummary = Project & {
   todos: { state: TodoState }[]
   project_members: { user_id: string; role: ProjectRole; profiles: { full_name: string } | null }[]
@@ -40,4 +41,21 @@ export async function createProject(input: {
     .single()
   if (error) throw error
   return data
+}
+
+export async function updateProject(
+  id: string,
+  input: { name: string; description: string; status: ProjectStatus },
+): Promise<void> {
+  const { error } = await supabase
+    .from('projects')
+    .update({ name: input.name, description: input.description || null, status: input.status })
+    .eq('id', id)
+  if (error) throw error
+}
+
+// Deletes members, to-dos, notes and requests too (on delete cascade)
+export async function deleteProject(id: string): Promise<void> {
+  const { error } = await supabase.from('projects').delete().eq('id', id)
+  if (error) throw error
 }

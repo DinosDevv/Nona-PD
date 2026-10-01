@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useProject } from '../hooks/useProject'
+import { PROJECT_STATUS_LABELS } from '../lib/projectView'
 import { filterAndSort, progressOf, STATE_LABELS, type SortKey, type StateFilter } from '../lib/todoView'
 import Avatar, { AvatarStack } from '../components/Avatar'
 import Modal from '../components/Modal'
@@ -8,7 +9,9 @@ import TodoRow from '../components/TodoRow'
 import TodoDetail from '../components/TodoDetail'
 import PendingRequests from '../components/PendingRequests'
 import MembersPanel from '../components/MembersPanel'
-import { ArrowLeftIcon, PlusIcon, SearchIcon } from '../components/icons'
+import ProjectSettingsModal from '../components/ProjectSettingsModal'
+import RequestAssignmentModal from '../components/RequestAssignmentModal'
+import { ArrowLeftIcon, PlusIcon, SearchIcon, SettingsIcon } from '../components/icons'
 import './ProjectPage.css'
 
 type Tab = 'todos' | 'members'
@@ -49,13 +52,19 @@ export default function ProjectPage() {
     removeMember,
     assign,
     unassign,
+    updateProject,
+    deleteProject,
   } = useProject(projectId!)
+  const navigate = useNavigate()
+  const [showSettings, setShowSettings] = useState(false)
+  const [requestTaskId, setRequestTaskId] = useState<string | null>(null)
 
   const [tab, setTab] = useState<Tab>('todos')
   const [filter, setFilter] = useState<StateFilter>('all')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortKey>('deadline')
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [searchParams] = useSearchParams()
+  const [selectedId, setSelectedId] = useState<string | null>(searchParams.get('todo'))
 
   const [showForm, setShowForm] = useState(false)
   const [newTitle, setNewTitle] = useState('')
@@ -98,7 +107,17 @@ export default function ProjectPage() {
               <span className="muted small">{progress.done}/{progress.total} done</span>
             </div>
           </div>
-          <AvatarStack people={members.map((m) => ({ id: m.user_id, name: memberName(m.user_id) }))} size={32} />
+          <div className="project-header__side">
+            <div className="row">
+              <AvatarStack people={members.map((m) => ({ id: m.user_id, name: memberName(m.user_id) }))} size={32} />
+              {isManager && (
+                <button className="button--ghost" onClick={() => setShowSettings(true)}>
+                  <SettingsIcon /> Project Settings
+                </button>
+              )}
+            </div>
+            <span className={`badge badge--project-${project.status}`}>{PROJECT_STATUS_LABELS[project.status]}</span>
+          </div>
         </div>
 
         <nav className="tabs" role="tablist">
@@ -133,6 +152,7 @@ export default function ProjectPage() {
                   id: r.id,
                   requesterName: memberName(r.user_id),
                   todoTitle: t.title,
+                  message: r.message,
                 })),
               )}
               onResolve={resolveRequest}
@@ -202,6 +222,7 @@ export default function ProjectPage() {
                     id: r.id,
                     userId: r.user_id,
                     name: memberName(r.user_id),
+                    message: r.message,
                   }))}
                   assignable={people(assignable(selected).map((m) => m.user_id))}
                   myRequestId={myRequestId(selected)}
@@ -211,7 +232,7 @@ export default function ProjectPage() {
                   isManager={isManager}
                   onChangeState={(state) => changeState(selected.id, state)}
                   onAddNote={(body) => addNote(selected.id, body)}
-                  onRequest={() => requestAssignment(selected.id)}
+                  onRequest={() => setRequestTaskId(selected.id)}
                   onWithdraw={withdrawRequest}
                   onResolve={resolveRequest}
                   onAssign={(uid) => assign(selected.id, uid)}
@@ -223,6 +244,26 @@ export default function ProjectPage() {
             </section>
           </div>
         </>
+      )}
+
+      {requestTaskId && (
+        <RequestAssignmentModal
+          tasks={todos.filter((t) => canRequest(t) && !myRequestId(t)).map((t) => ({ id: t.id, title: t.title }))}
+          initialTaskId={requestTaskId}
+          onClose={() => setRequestTaskId(null)}
+          onSend={requestAssignment}
+        />
+      )}
+
+      {showSettings && (
+        <ProjectSettingsModal
+          project={project}
+          onClose={() => setShowSettings(false)}
+          onSave={updateProject}
+          onDelete={async () => {
+            if (await deleteProject()) navigate('/dashboard')
+          }}
+        />
       )}
 
       {showForm && (

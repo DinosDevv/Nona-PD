@@ -1,9 +1,9 @@
 import { supabase } from '../lib/supabase'
 
-export async function requestAssignment(input: { todoId: string; userId: string }): Promise<void> {
+export async function requestAssignment(input: { todoId: string; userId: string; message?: string }): Promise<void> {
   const { error } = await supabase
     .from('assignment_requests')
-    .insert({ todo_id: input.todoId, user_id: input.userId })
+    .insert({ todo_id: input.todoId, user_id: input.userId, message: input.message?.trim() || null })
   if (error) throw error
 }
 
