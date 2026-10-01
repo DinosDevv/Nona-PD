@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
+import RequireAuth from './components/RequireAuth'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectPage from './pages/ProjectPage'
@@ -10,8 +11,14 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/login" element={<LoginPage />} />
-      {/* TODO: wrap in an auth guard once login is implemented */}
-      <Route path="/dashboard" element={<Layout />}>
+      <Route
+        path="/dashboard"
+        element={
+          <RequireAuth>
+            <Layout />
+          </RequireAuth>
+        }
+      >
         <Route index element={<DashboardPage />} />
         <Route path="project/:projectId" element={<ProjectPage />} />
       </Route>
