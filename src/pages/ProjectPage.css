@@ -342,3 +342,122 @@
   flex-basis: 100%;
   padding-left: 30px;
 }
+
+.note__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.note__footer .icon-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Activity tab */
+.activity-feed {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  max-width: 900px;
+}
+
+.activity-feed li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.875rem;
+}
+
+.activity-feed li + li {
+  border-top: 1px solid var(--color-border);
+}
+
+.activity-feed p {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-feed .muted {
+  flex-shrink: 0;
+}
+
+/* Files tab */
+.dropzone {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  max-width: 900px;
+}
+
+.dropzone--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  max-width: 900px;
+}
+
+.file-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.file-list li + li {
+  border-top: 1px solid var(--color-border);
+}
+
+.file-list__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius);
+  background: var(--color-surface-2);
+  color: #8fb0ff;
+}
+
+.file-list__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.file-list__name {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Presence dot on member avatars */
+.member-card__avatar {
+  position: relative;
+  display: inline-flex;
+}
+
+.member-card__avatar .status-dot {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 11px;
+  height: 11px;
+  box-shadow: 0 0 0 2px var(--color-surface);
+}

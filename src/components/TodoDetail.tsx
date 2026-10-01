@@ -3,15 +3,16 @@ import type { Todo, TodoState } from '../api/todos'
 import { STATE_LABELS, formatDateTime, isOverdue } from '../lib/todoView'
 import { shortName } from '../lib/people'
 import Avatar from './Avatar'
-import { AlertIcon, CheckIcon, UserPlusIcon, XIcon } from './icons'
+import { AlertIcon, CheckIcon, PencilIcon, TrashIcon, UserPlusIcon, XIcon } from './icons'
 
 type Person = { id: string; name: string }
+type NoteItem = { id: string; authorName: string; mine: boolean; body: string; createdAt: string; edited: boolean }
 
 type Props = {
   todo: Todo
   creator: Person | null
   assignees: Person[]
-  notes: { id: string; authorName: string; body: string; createdAt: string }[]
+  notes: NoteItem[]
   requests: { id: string; userId: string; name: string; message: string | null }[]
   assignable: Person[]
   myRequestId: string | null
@@ -20,12 +21,77 @@ type Props = {
   canRequest: boolean
   isManager: boolean
   onChangeState: (state: TodoState) => void
+  onEdit: () => void
+  onDelete: () => void
   onAddNote: (body: string) => Promise<boolean>
+  onEditNote: (noteId: string, body: string) => Promise<boolean>
+  onDeleteNote: (noteId: string) => void
   onRequest: () => void
   onWithdraw: (requestId: string) => void
   onResolve: (requestId: string, approve: boolean) => void
   onAssign: (userId: string) => void
   onUnassign: (userId: string) => void
+}
+
+function NoteRow({ note, onSave, onDelete }: { note: NoteItem; onSave: (body: string) => Promise<boolean>; onDelete: () => void }) {
+  const [editing, setEditing] = useState(false)
+  const [body, setBody] = useState(note.body)
+
+  async function handleSave(e: FormEvent) {
+    e.preventDefault()
+    if (await onSave(body)) setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <li>
+        <form className="stack" onSubmit={handleSave}>
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={3} required autoFocus />
+          <div className="row">
+            <button type="submit">Save</button>
+            <button
+              type="button"
+              className="button--ghost"
+              onClick={() => {
+                setBody(note.body)
+                setEditing(false)
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </li>
+    )
+  }
+
+  return (
+    <li>
+      <p>{note.body}</p>
+      <div className="note__footer">
+        <span className="muted small">
+          — {shortName(note.authorName)} · {formatDateTime(note.createdAt)}
+          {note.edited && ' · edited'}
+        </span>
+        {note.mine && (
+          <span className="row">
+            <button type="button" className="icon-button" title="Edit note" aria-label="Edit note" onClick={() => setEditing(true)}>
+              <PencilIcon />
+            </button>
+            <button
+              type="button"
+              className="icon-button"
+              title="Delete note"
+              aria-label="Delete note"
+              onClick={() => confirm('Delete this note?') && onDelete()}
+            >
+              <TrashIcon />
+            </button>
+          </span>
+        )}
+      </div>
+    </li>
+  )
 }
 
 export default function TodoDetail({
@@ -41,7 +107,11 @@ export default function TodoDetail({
   canRequest,
   isManager,
   onChangeState,
+  onEdit,
+  onDelete,
   onAddNote,
+  onEditNote,
+  onDeleteNote,
   onRequest,
   onWithdraw,
   onResolve,
@@ -60,7 +130,25 @@ export default function TodoDetail({
     <aside className="todo-detail">
       <div className="todo-detail__header">
         <h2>{todo.title}</h2>
-        {overdue && <span className="badge badge--overdue"><AlertIcon /> Overdue</span>}
+        <div className="row">
+          {overdue && <span className="badge badge--overdue"><AlertIcon /> Overdue</span>}
+          {canEdit && (
+            <>
+              <button type="button" className="icon-button" title="Edit to-do" aria-label="Edit to-do" onClick={onEdit}>
+                <PencilIcon />
+              </button>
+              <button
+                type="button"
+                className="icon-button"
+                title="Delete to-do"
+                aria-label="Delete to-do"
+                onClick={() => confirm(`Delete "${todo.title}"? Its notes and requests go with it.`) && onDelete()}
+              >
+                <TrashIcon />
+              </button>
+            </>
+          )}
+        </div>
       </div>
       {todo.description && <p className="todo-detail__description">{todo.description}</p>}
 
@@ -159,12 +247,12 @@ export default function TodoDetail({
         ) : (
           <ul className="notes">
             {notes.map((n) => (
-              <li key={n.id}>
-                <p>{n.body}</p>
-                <span className="muted small">
-                  — {shortName(n.authorName)} · {formatDateTime(n.createdAt)}
-                </span>
-              </li>
+              <NoteRow
+                key={n.id}
+                note={n}
+                onSave={(body) => onEditNote(n.id, body)}
+                onDelete={() => onDeleteNote(n.id)}
+              />
             ))}
           </ul>
         )}

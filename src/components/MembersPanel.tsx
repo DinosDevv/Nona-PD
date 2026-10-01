@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Member, Profile, ProjectRole, Responsibility } from '../api/members'
 import { shortName } from '../lib/people'
+import { PRESENCE_LABELS, usePresence } from '../lib/usePresence'
 import Avatar from './Avatar'
 import { ArrowDownIcon, ArrowUpIcon, PlusIcon, XIcon } from './icons'
 
@@ -26,6 +27,7 @@ export default function MembersPanel({
   onRemove,
 }: Props) {
   const [newMemberId, setNewMemberId] = useState('')
+  const presenceOf = usePresence()
 
   return (
     <section className="stack">
@@ -52,10 +54,14 @@ export default function MembersPanel({
           const isPM = m.role === 'manager'
           const canManage = isManager && m.user_id !== creatorId
           const duties = responsibilities.filter((r) => r.user_id === m.user_id)
+          const presence = presenceOf(m.user_id)
           return (
             <li key={m.user_id} className="card member-card">
               <div className="member-card__head">
-                <Avatar name={name} seed={m.user_id} size={40} />
+                <span className="member-card__avatar">
+                  <Avatar name={name} seed={m.user_id} size={40} />
+                  <span className={`status-dot status-dot--${presence}`} title={PRESENCE_LABELS[presence]} />
+                </span>
                 <div className="member-card__name">
                   <strong>{shortName(name)}</strong>
                   <span className="muted small">{m.title ?? (isPM ? 'Project Manager' : 'Contributor')}</span>
@@ -64,9 +70,7 @@ export default function MembersPanel({
               </div>
 
               {m.profiles?.user_status && (
-                <div className="member-card__status small">
-                  <span className="status-dot" /> {m.profiles.user_status}
-                </div>
+                <div className="member-card__status small">{m.profiles.user_status}</div>
               )}
 
               {duties.length > 0 && (

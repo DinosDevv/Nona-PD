@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { useTeam } from '../hooks/useTeam'
 import type { TeamMember } from '../api/profiles'
 import { shortName } from '../lib/people'
+import { PRESENCE_LABELS, usePresence } from '../lib/usePresence'
 import Avatar from '../components/Avatar'
 import EditProfileModal from '../components/EditProfileModal'
 import './TeamPage.css'
 
 function TeamRow({ member, isMe, onEdit }: { member: TeamMember; isMe?: boolean; onEdit?: () => void }) {
   const projects = member.project_members.flatMap((pm) => (pm.projects ? [pm.projects.name] : []))
+  const presence = usePresence()(member.id)
 
   return (
     <li className="team-row">
@@ -20,9 +22,11 @@ function TeamRow({ member, isMe, onEdit }: { member: TeamMember; isMe?: boolean;
         <span className="muted small">{projects.length ? projects.join(', ') : 'No shared projects'}</span>
       </div>
       <div className="team-row__status small">
-        {/* Grey until online/away presence exists (Phase 3) */}
-        <span className="status-dot status-dot--offline" />
-        <span className={member.user_status ? undefined : 'muted'}>{member.user_status ?? 'No status'}</span>
+        <span className={`status-dot status-dot--${presence}`} title={PRESENCE_LABELS[presence]} />
+        <div className="team-row__status-text">
+          <span className={`team-row__presence team-row__presence--${presence}`}>{PRESENCE_LABELS[presence]}</span>
+          <span className="muted">{member.user_status ?? 'No status'}</span>
+        </div>
       </div>
       {isMe && (
         <button type="button" className="button--ghost" onClick={onEdit}>Edit</button>

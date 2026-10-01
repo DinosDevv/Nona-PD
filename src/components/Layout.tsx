@@ -1,27 +1,24 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import type { ReactNode } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/useAuth'
 import { shortName } from '../lib/people'
 import { useMyProfile } from '../hooks/useMyProfile'
+import { useMyTaskCount } from '../hooks/useMyTaskCount'
+import { useUnreadCount } from '../hooks/useNotifications'
 import Avatar from './Avatar'
 import { BellIcon, FolderIcon, HomeIcon, ListIcon, LogOutIcon, UsersIcon } from './icons'
 import './Layout.css'
 
-// Pages that don't exist yet are shown but not clickable
-function SoonItem({ icon, label }: { icon: ReactNode; label: string }) {
-  return (
-    <span className="nav__item nav__item--disabled" aria-disabled="true" title="Coming soon">
-      {icon}
-      <span>{label}</span>
-    </span>
-  )
+function Count({ n }: { n: number }) {
+  return n > 0 ? <span className="nav__count">{n > 99 ? '99+' : n}</span> : null
 }
 
 export default function Layout() {
   const { session } = useAuth()
   const email = session?.user.email ?? ''
   const { name } = useMyProfile()
+  const taskCount = useMyTaskCount()
+  const unread = useUnreadCount()
   const { pathname } = useLocation()
   // Project pages count as part of the dashboard
   const onDashboard = pathname === '/dashboard' || pathname.startsWith('/dashboard/project')
@@ -42,13 +39,21 @@ export default function Layout() {
           <NavLink to="/dashboard/tasks" className="nav__item">
             <ListIcon />
             <span>My Tasks</span>
+            <Count n={taskCount} />
           </NavLink>
-          <SoonItem icon={<FolderIcon />} label="Projects" />
+          <NavLink to="/dashboard/projects" className="nav__item">
+            <FolderIcon />
+            <span>Projects</span>
+          </NavLink>
           <NavLink to="/dashboard/team" className="nav__item">
             <UsersIcon />
             <span>Team</span>
           </NavLink>
-          <SoonItem icon={<BellIcon />} label="Notifications" />
+          <NavLink to="/dashboard/notifications" className="nav__item">
+            <BellIcon />
+            <span>Notifications</span>
+            <Count n={unread} />
+          </NavLink>
         </nav>
 
         <div className="sidebar__user">

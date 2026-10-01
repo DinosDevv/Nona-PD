@@ -1,0 +1,14 @@
+.projects-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 1000px;
+}
+
+.projects-page h1 {
+  margin: 0 0 var(--space-1);
+}
+
+.projects-page .segmented {
+  align-self: flex-start;
+}

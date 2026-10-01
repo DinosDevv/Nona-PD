@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useProject } from '../hooks/useProject'
+import { useActivity } from '../hooks/useActivity'
+import { useProjectFiles } from '../hooks/useProjectFiles'
 import { PROJECT_STATUS_LABELS } from '../lib/projectView'
 import { filterAndSort, progressOf, STATE_LABELS, type SortKey, type StateFilter } from '../lib/todoView'
 import Avatar, { AvatarStack } from '../components/Avatar'
@@ -11,10 +13,13 @@ import PendingRequests from '../components/PendingRequests'
 import MembersPanel from '../components/MembersPanel'
 import ProjectSettingsModal from '../components/ProjectSettingsModal'
 import RequestAssignmentModal from '../components/RequestAssignmentModal'
+import EditTodoModal from '../components/EditTodoModal'
+import ActivityFeed from '../components/ActivityFeed'
+import FilesPanel from '../components/FilesPanel'
 import { ArrowLeftIcon, PlusIcon, SearchIcon, SettingsIcon } from '../components/icons'
 import './ProjectPage.css'
 
-type Tab = 'todos' | 'members'
+type Tab = 'todos' | 'members' | 'activity' | 'files'
 
 const FILTERS: { value: StateFilter; label: string }[] = [
   { value: 'all', label: 'All' },
@@ -34,10 +39,16 @@ export default function ProjectPage() {
     error,
     memberName,
     canEdit,
+    canRename,
     isAssignee,
+    currentUserId,
     addTodo,
+    editTodo,
+    removeTodo,
     changeState,
     addNote,
+    editNote,
+    removeNote,
     isManager,
     myRequestId,
     canRequest,
@@ -60,6 +71,9 @@ export default function ProjectPage() {
   const [requestTaskId, setRequestTaskId] = useState<string | null>(null)
 
   const [tab, setTab] = useState<Tab>('todos')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const activity = useActivity(projectId!, tab === 'activity')
+  const files = useProjectFiles(projectId!, tab === 'files')
   const [filter, setFilter] = useState<StateFilter>('all')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortKey>('deadline')
@@ -125,14 +139,29 @@ export default function ProjectPage() {
           <button role="tab" aria-selected={tab === 'members'} onClick={() => setTab('members')}>
             Members <span className="muted">{members.length}</span>
           </button>
-          <button role="tab" disabled title="Coming soon">Activity</button>
-          <button role="tab" disabled title="Coming soon">Files</button>
+          <button role="tab" aria-selected={tab === 'activity'} onClick={() => setTab('activity')}>Activity</button>
+          <button role="tab" aria-selected={tab === 'files'} onClick={() => setTab('files')}>
+            Files {files.files && <span className="muted">{files.files.length}</span>}
+          </button>
         </nav>
       </header>
 
       {error && <p className="error">{error}</p>}
 
-      {tab === 'members' ? (
+      {tab === 'activity' ? (
+        <ActivityFeed entries={activity.entries} />
+      ) : tab === 'files' ? (
+        <FilesPanel
+          files={files.files}
+          uploading={files.uploading}
+          currentUserId={files.currentUserId}
+          isManager={isManager}
+          memberName={memberName}
+          onUpload={files.upload}
+          onOpen={files.open}
+          onDelete={files.remove}
+        />
+      ) : tab === 'members' ? (
         <MembersPanel
           members={members}
           responsibilities={responsibilities}
@@ -215,8 +244,11 @@ export default function ProjectPage() {
                   notes={selected.todo_notes.map((n) => ({
                     id: n.id,
                     authorName: memberName(n.user_id),
+                    mine: n.user_id === currentUserId,
                     body: n.body,
                     createdAt: n.created_at,
+                    // Both timestamps are equal on insert; only an edit moves updated_at
+                    edited: n.updated_at !== n.created_at,
                   }))}
                   requests={selected.assignment_requests.map((r) => ({
                     id: r.id,
@@ -231,7 +263,14 @@ export default function ProjectPage() {
                   canRequest={canRequest(selected)}
                   isManager={isManager}
                   onChangeState={(state) => changeState(selected.id, state)}
+                  onEdit={() => setEditingId(selected.id)}
+                  onDelete={() => {
+                    removeTodo(selected.id)
+                    setSelectedId(null)
+                  }}
                   onAddNote={(body) => addNote(selected.id, body)}
+                  onEditNote={editNote}
+                  onDeleteNote={removeNote}
                   onRequest={() => setRequestTaskId(selected.id)}
                   onWithdraw={withdrawRequest}
                   onResolve={resolveRequest}
@@ -244,6 +283,15 @@ export default function ProjectPage() {
             </section>
           </div>
         </>
+      )}
+
+      {editingId && todos.some((t) => t.id === editingId) && (
+        <EditTodoModal
+          todo={todos.find((t) => t.id === editingId)!}
+          canRename={canRename(todos.find((t) => t.id === editingId)!)}
+          onClose={() => setEditingId(null)}
+          onSave={(input) => editTodo(editingId, input)}
+        />
       )}
 
       {requestTaskId && (

@@ -65,3 +65,24 @@ export function filterAndSort(todos: Todo[], filter: StateFilter, search: string
     return a.deadline.localeCompare(b.deadline)
   })
 }
+
+// ISO timestamp -> value for <input type="datetime-local"> (local time, no offset)
+export function toLocalInput(iso: string | null) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+// "just now", "5m ago", "3h ago", "2d ago", then a date
+export function timeAgo(iso: string, now = new Date()) {
+  const seconds = Math.round((now.getTime() - new Date(iso).getTime()) / 1000)
+  if (seconds < 60) return 'just now'
+  const minutes = Math.round(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.round(hours / 24)
+  if (days < 7) return `${days}d ago`
+  return new Date(iso).toLocaleDateString([], { month: 'short', day: 'numeric' })
+}

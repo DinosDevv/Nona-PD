@@ -1,11 +1,14 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import RequireAuth from './components/RequireAuth'
+import PresenceProvider from './components/PresenceProvider'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectPage from './pages/ProjectPage'
 import MyTasksPage from './pages/MyTasksPage'
 import TeamPage from './pages/TeamPage'
+import ProjectsPage from './pages/ProjectsPage'
+import NotificationsPage from './pages/NotificationsPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
@@ -17,13 +20,17 @@ export default function App() {
         path="/dashboard"
         element={
           <RequireAuth>
-            <Layout />
+            <PresenceProvider>
+              <Layout />
+            </PresenceProvider>
           </RequireAuth>
         }
       >
         <Route index element={<DashboardPage />} />
         <Route path="tasks" element={<MyTasksPage />} />
         <Route path="team" element={<TeamPage />} />
+        <Route path="projects" element={<ProjectsPage />} />
+        <Route path="notifications" element={<NotificationsPage />} />
         <Route path="project/:projectId" element={<ProjectPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />

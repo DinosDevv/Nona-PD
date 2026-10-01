@@ -1,13 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useProjects } from '../hooks/useProjects'
-import Avatar from '../components/Avatar'
+import ProjectRow from '../components/ProjectRow'
 import Modal from '../components/Modal'
 import StatTiles from '../components/StatTiles'
-import { ChevronRightIcon, PlusIcon } from '../components/icons'
-import { progressOf } from '../lib/todoView'
-import { PROJECT_STATUS_LABELS, projectManager, statusCounts } from '../lib/projectView'
-import { firstName, shortName } from '../lib/people'
+import { PlusIcon } from '../components/icons'
+import { statusCounts } from '../lib/projectView'
+import { firstName } from '../lib/people'
 import { useMyProfile } from '../hooks/useMyProfile'
 import './DashboardPage.css'
 
@@ -25,6 +24,10 @@ export default function DashboardPage() {
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+
+  // Completed projects live on the Projects page
+  const activeProjects = (projects ?? []).filter((p) => p.status !== 'completed')
+  const completedCount = (projects ?? []).length - activeProjects.length
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault()
@@ -51,45 +54,21 @@ export default function DashboardPage() {
         <h2>Your Projects</h2>
         {projects === null ? (
           <p className="muted">Loading…</p>
-        ) : projects.length === 0 ? (
-          <p className="muted">You're not in any projects yet.</p>
+        ) : activeProjects.length === 0 ? (
+          <p className="muted">
+            {projects.length === 0 ? "You're not in any projects yet." : 'No active projects.'}
+          </p>
         ) : (
           <ul className="project-list">
-            {projects.map((p) => {
-              const progress = progressOf(p.todos)
-              const pm = projectManager(p)
-              return (
-                <li key={p.id}>
-                  <Link to={`/dashboard/project/${p.id}`} className="project-row">
-                    <Avatar name={p.name} seed={p.id} size={44} square />
-                    <div className="project-row__text">
-                      <strong>{p.name}</strong>
-                      {p.description && <span className="muted small">{p.description}</span>}
-                    </div>
-                    <div className="project-row__progress">
-                      <span className="muted small">{progress.done}/{progress.total} done</span>
-                      <div className="progress">
-                        <div className="progress__bar" style={{ width: `${progress.percent}%` }} />
-                      </div>
-                    </div>
-                    <span className="project-row__status">
-                      <span className={`badge badge--project-${p.status}`}>{PROJECT_STATUS_LABELS[p.status]}</span>
-                    </span>
-                    {pm && (
-                      <div className="project-row__pm">
-                        <Avatar name={pm.name} seed={pm.id} size={30} />
-                        <div className="project-row__pm-text">
-                          <span className="muted small">PM</span>
-                          <span className="small">{shortName(pm.name)}</span>
-                        </div>
-                      </div>
-                    )}
-                    <span className="project-row__chevron"><ChevronRightIcon /></span>
-                  </Link>
-                </li>
-              )
-            })}
+            {activeProjects.map((p) => (
+              <ProjectRow key={p.id} project={p} />
+            ))}
           </ul>
+        )}
+        {completedCount > 0 && (
+          <Link to="/dashboard/projects" className="muted small">
+            {completedCount} completed project{completedCount === 1 ? '' : 's'} → Projects
+          </Link>
         )}
       </section>
 

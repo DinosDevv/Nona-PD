@@ -2,7 +2,7 @@ import { supabase } from '../lib/supabase'
 import type { Enums, Tables } from '../types/database'
 
 export type TodoState = Enums<'todo_state'>
-export type TodoNote = Pick<Tables<'todo_notes'>, 'id' | 'body' | 'user_id' | 'created_at'>
+export type TodoNote = Pick<Tables<'todo_notes'>, 'id' | 'body' | 'user_id' | 'created_at' | 'updated_at'>
 export type TodoRequest = Pick<Tables<'assignment_requests'>, 'id' | 'user_id' | 'message'>
 export type Todo = Tables<'todos'> & {
   todo_assignees: { user_id: string }[]
@@ -15,7 +15,7 @@ export async function listTodos(projectId: string): Promise<Todo[]> {
   const { data, error } = await supabase
     .from('todos')
     .select(
-      '*, todo_assignees(user_id), todo_notes(id, body, user_id, created_at), assignment_requests(id, user_id, message)',
+      '*, todo_assignees(user_id), todo_notes(id, body, user_id, created_at, updated_at), assignment_requests(id, user_id, message)',
     )
     .eq('project_id', projectId)
     .eq('assignment_requests.status', 'pending') // filters the embedded requests, not the to-dos
@@ -58,4 +58,36 @@ export async function listMyTasks(userId: string): Promise<MyTask[]> {
     .order('deadline', { ascending: true, nullsFirst: false })
   if (error) throw error
   return data
+}
+
+// Title/description: author or PM, not once done (enforced in the database).
+// Deadline: assignees or PM.
+export async function updateTodo(
+  todoId: string,
+  input: { title: string; description: string; deadline: string },
+): Promise<void> {
+  const { error } = await supabase
+    .from('todos')
+    .update({
+      title: input.title,
+      description: input.description || null,
+      deadline: input.deadline ? new Date(input.deadline).toISOString() : null,
+    })
+    .eq('id', todoId)
+  if (error) throw error
+}
+
+export async function deleteTodo(todoId: string): Promise<void> {
+  const { error } = await supabase.from('todos').delete().eq('id', todoId)
+  if (error) throw error
+}
+
+export async function countMyOpenTasks(userId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from('todos')
+    .select('id, todo_assignees!inner(user_id)', { count: 'exact', head: true })
+    .eq('todo_assignees.user_id', userId)
+    .neq('state', 'done')
+  if (error) throw error
+  return count ?? 0
 }

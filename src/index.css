@@ -380,3 +380,7 @@ button:disabled {
   border-radius: 50%;
   background: var(--color-status-done);
 }
+
+.status-dot--online { background: var(--color-status-done); }
+.status-dot--away { background: var(--color-status-in-progress); }
+.status-dot--offline { background: var(--color-muted); }

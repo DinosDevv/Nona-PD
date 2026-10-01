@@ -173,3 +173,69 @@ export function SettingsIcon() {
     </Icon>
   )
 }
+
+export function PencilIcon() {
+  return (
+    <Icon>
+      <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z" />
+    </Icon>
+  )
+}
+
+export function TrashIcon() {
+  return (
+    <Icon>
+      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+    </Icon>
+  )
+}
+
+export function UploadIcon() {
+  return (
+    <Icon>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+    </Icon>
+  )
+}
+
+export function FileIcon() {
+  return (
+    <Icon>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+    </Icon>
+  )
+}
+
+export function DownloadIcon() {
+  return (
+    <Icon>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+    </Icon>
+  )
+}
+
+export function ArrowUpRightIcon() {
+  return (
+    <Icon>
+      <path d="M7 17 17 7M7 7h10v10" />
+    </Icon>
+  )
+}
+
+export function ClockIcon() {
+  return (
+    <Icon>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </Icon>
+  )
+}
+
+export function NotesIcon() {
+  return (
+    <Icon>
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </Icon>
+  )
+}

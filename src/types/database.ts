@@ -14,6 +14,58 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          data: Json
+          id: string
+          project_id: string
+          todo_id: string | null
+          type: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          project_id: string
+          todo_id?: string | null
+          type: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          project_id?: string
+          todo_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_todo_id_fkey"
+            columns: ["todo_id"]
+            isOneToOne: false
+            referencedRelation: "todos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assignment_requests: {
         Row: {
           created_at: string
@@ -69,6 +121,81 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          data: Json
+          id: string
+          project_id: string | null
+          read_at: string | null
+          request_id: string | null
+          todo_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          project_id?: string | null
+          read_at?: string | null
+          request_id?: string | null
+          todo_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          project_id?: string | null
+          read_at?: string | null
+          request_id?: string | null
+          todo_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "assignment_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_todo_id_fkey"
+            columns: ["todo_id"]
+            isOneToOne: false
+            referencedRelation: "todos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -89,6 +216,54 @@ export type Database = {
           user_status?: string | null
         }
         Relationships: []
+      }
+      project_files: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          id: string
+          name: string
+          path: string
+          project_id: string
+          size: number
+          uploaded_by: string | null
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          path: string
+          project_id: string
+          size?: number
+          uploaded_by?: string | null
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          path?: string
+          project_id?: string
+          size?: number
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_members: {
         Row: {
@@ -327,12 +502,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_deadline_notifications: { Args: never; Returns: undefined }
       is_project_manager: { Args: { pid: string }; Returns: boolean }
       is_project_member: {
         Args: { pid: string; uid?: string }
         Returns: boolean
       }
       is_todo_assignee: { Args: { tid: string }; Returns: boolean }
+      log_activity: {
+        Args: {
+          p_data: Json
+          p_project: string
+          p_todo: string
+          p_type: string
+        }
+        Returns: undefined
+      }
+      notify: {
+        Args: {
+          p_data: Json
+          p_project: string
+          p_request: string
+          p_todo: string
+          p_type: string
+          p_user: string
+        }
+        Returns: undefined
+      }
+      profile_name: { Args: { uid: string }; Returns: string }
+      storage_project_id: { Args: { object_name: string }; Returns: string }
       todo_project: { Args: { tid: string }; Returns: string }
     }
     Enums: {
