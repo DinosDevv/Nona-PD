@@ -29,3 +29,17 @@ src/
 | `/login`                          | Login         |
 | `/dashboard`                      | Project list  |
 | `/dashboard/project/:projectId`   | Project page  |
+
+## Database
+
+Schema, triggers and RLS policies live in `supabase/migrations/`.
+
+```bash
+npx supabase login
+npx supabase link --project-ref <your-project-ref>
+npx supabase db push        # apply migrations
+npm run db:types            # regenerate src/types/database.ts
+```
+
+Responsibilities and per-project member titles are admin-only: edit them in the
+Supabase dashboard or via SQL.
