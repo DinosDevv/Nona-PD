@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { getProject, type Project } from '../api/projects'
 import { listMembers, listResponsibilities, type Member, type Responsibility } from '../api/members'
 import { createTodo, listTodos, setTodoState, type Todo, type TodoState } from '../api/todos'
+import { createNote } from '../api/notes'
 import { useAuth } from '../lib/useAuth'
 
 type ProjectData = {
@@ -43,8 +44,8 @@ export function useProject(projectId: string) {
   const isManager = members.some((m) => m.user_id === userId && m.role === 'manager')
   const memberName = (id: string) =>
     members.find((m) => m.user_id === id)?.profiles?.full_name ?? 'Unknown'
-  const canEdit = (todo: Todo) =>
-    isManager || todo.todo_assignees.some((a) => a.user_id === userId)
+  const isAssignee = (todo: Todo) => todo.todo_assignees.some((a) => a.user_id === userId)
+  const canEdit = (todo: Todo) => isManager || isAssignee(todo)
 
   async function run(action: () => Promise<void>) {
     try {
@@ -64,8 +65,11 @@ export function useProject(projectId: string) {
     isManager,
     memberName,
     canEdit,
-    addTodo: (title: string, deadline: string) =>
-      run(() => createTodo({ projectId, title, deadline, createdBy: userId })),
+    isAssignee,
+    addTodo: (input: { title: string; description: string; deadline: string }) =>
+      run(() => createTodo({ projectId, ...input, createdBy: userId })),
     changeState: (todoId: string, state: TodoState) => run(() => setTodoState(todoId, state)),
+    addNote: (todoId: string, body: string) =>
+      run(() => createNote({ todoId, body, userId })),
   }
 }

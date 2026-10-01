@@ -11,23 +11,6 @@
   }
 }
 
-.todo {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  border-left: 4px solid var(--color-border);
-}
-
-.todo--undone { border-left-color: var(--color-status-undone); }
-.todo--in_progress { border-left-color: var(--color-status-in-progress); }
-.todo--done { border-left-color: var(--color-status-done); }
-
-.todo__main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
 .status {
   font-size: 0.875rem;
   color: var(--color-status-done);

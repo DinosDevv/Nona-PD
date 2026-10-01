@@ -1,14 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { useParams } from 'react-router-dom'
 import { useProject } from '../hooks/useProject'
-import type { TodoState } from '../api/todos'
+import TodoCard from '../components/TodoCard'
 import './ProjectPage.css'
-
-const STATE_LABELS: Record<TodoState, string> = {
-  undone: 'Undone',
-  in_progress: 'In progress',
-  done: 'Done',
-}
 
 export default function ProjectPage() {
   const { projectId } = useParams<{ projectId: string }>()
@@ -21,17 +15,21 @@ export default function ProjectPage() {
     error,
     memberName,
     canEdit,
+    isAssignee,
     addTodo,
     changeState,
+    addNote,
   } = useProject(projectId!)
 
   const [newTitle, setNewTitle] = useState('')
+  const [newDescription, setNewDescription] = useState('')
   const [newDeadline, setNewDeadline] = useState('')
 
   async function handleAddTodo(e: FormEvent) {
     e.preventDefault()
-    if (await addTodo(newTitle, newDeadline)) {
+    if (await addTodo({ title: newTitle, description: newDescription, deadline: newDeadline })) {
       setNewTitle('')
+      setNewDescription('')
       setNewDeadline('')
     }
   }
@@ -52,37 +50,39 @@ export default function ProjectPage() {
         {todos.length === 0 && <p className="muted">No to-dos yet.</p>}
         <ul className="stack">
           {todos.map((todo) => (
-            <li key={todo.id} className={`card todo todo--${todo.state}`}>
-              <div className="todo__main">
-                <strong>{todo.title}</strong>
-                <span className="muted">
-                  {todo.todo_assignees.map((a) => memberName(a.user_id)).join(', ') || 'Unassigned'}
-                  {todo.deadline && ` · due ${new Date(todo.deadline).toLocaleDateString()}`}
-                </span>
-              </div>
-              <select
-                value={todo.state}
-                disabled={!canEdit(todo)}
-                onChange={(e) => changeState(todo.id, e.target.value as TodoState)}
-              >
-                {Object.entries(STATE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </li>
+            <TodoCard
+              key={todo.id}
+              todo={todo}
+              creatorName={todo.created_by ? memberName(todo.created_by) : 'Unknown'}
+              assignees={todo.todo_assignees.map((a) => ({ id: a.user_id, name: memberName(a.user_id) }))}
+              notes={todo.todo_notes.map((n) => ({
+                id: n.id,
+                authorName: memberName(n.user_id),
+                body: n.body,
+                createdAt: n.created_at,
+              }))}
+              canEdit={canEdit(todo)}
+              canAddNote={isAssignee(todo)}
+              onChangeState={(state) => changeState(todo.id, state)}
+              onAddNote={(body) => addNote(todo.id, body)}
+            />
           ))}
         </ul>
 
-        <form className="row" onSubmit={handleAddTodo}>
-          <input
-            placeholder="New to-do"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            required
-            style={{ flex: 1 }}
+        <form className="card stack" onSubmit={handleAddTodo}>
+          <h3>New to-do</h3>
+          <input placeholder="Title" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} required />
+          <textarea
+            placeholder="Description (optional)"
+            value={newDescription}
+            onChange={(e) => setNewDescription(e.target.value)}
+            rows={2}
           />
-          <input type="date" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} />
-          <button type="submit">Add</button>
+          <label className="field">
+            Due (optional)
+            <input type="datetime-local" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} />
+          </label>
+          <button type="submit">Add to-do</button>
         </form>
       </section>
 
