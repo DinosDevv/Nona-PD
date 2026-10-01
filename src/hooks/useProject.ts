@@ -1,6 +1,18 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getProject, type Project } from '../api/projects'
-import { listMembers, listResponsibilities, type Member, type Responsibility } from '../api/members'
+import {
+  addMember,
+  listMembers,
+  listProfiles,
+  listResponsibilities,
+  removeMember,
+  setMemberRole,
+  type Member,
+  type Profile,
+  type ProjectRole,
+  type Responsibility,
+} from '../api/members'
+import { assignUser, unassignUser } from '../api/assignees'
 import { createTodo, listTodos, setTodoState, type Todo, type TodoState } from '../api/todos'
 import { createNote } from '../api/notes'
 import { requestAssignment, resolveRequest, withdrawRequest } from '../api/requests'
@@ -11,6 +23,7 @@ type ProjectData = {
   members: Member[]
   responsibilities: Responsibility[]
   todos: Todo[]
+  profiles: Profile[]
 }
 
 export function useProject(projectId: string) {
@@ -29,9 +42,10 @@ export function useProject(projectId: string) {
       listMembers(projectId),
       listResponsibilities(projectId),
       listTodos(projectId),
+      listProfiles(),
     ])
-      .then(([project, members, responsibilities, todos]) => {
-        if (!ignore) setData({ project, members, responsibilities, todos })
+      .then(([project, members, responsibilities, todos, profiles]) => {
+        if (!ignore) setData({ project, members, responsibilities, todos, profiles })
       })
       .catch((e: Error) => {
         if (!ignore) setError(e.message)
@@ -50,6 +64,13 @@ export function useProject(projectId: string) {
   const myRequestId = (todo: Todo) =>
     todo.assignment_requests.find((r) => r.user_id === userId)?.id ?? null
   const canRequest = (todo: Todo) => !isManager && !isAssignee(todo)
+
+  const creatorId = data?.project?.created_by ?? null
+  // Everyone in the team who isn't in this project yet (for the "Add member" picker)
+  const nonMembers = (data?.profiles ?? []).filter((p) => !members.some((m) => m.user_id === p.id))
+  // Project members not yet assigned to this to-do (for the "Assign" picker)
+  const assignable = (todo: Todo) =>
+    members.filter((m) => !todo.todo_assignees.some((a) => a.user_id === m.user_id))
 
   async function run(action: () => Promise<void>) {
     try {
@@ -81,5 +102,14 @@ export function useProject(projectId: string) {
     withdrawRequest: (requestId: string) => run(() => withdrawRequest(requestId)),
     resolveRequest: (requestId: string, approve: boolean) =>
       run(() => resolveRequest(requestId, approve)),
+    creatorId,
+    nonMembers,
+    assignable,
+    addMember: (memberId: string) => run(() => addMember(projectId, memberId)),
+    setMemberRole: (memberId: string, role: ProjectRole) =>
+      run(() => setMemberRole(projectId, memberId, role)),
+    removeMember: (memberId: string) => run(() => removeMember(projectId, memberId)),
+    assign: (todoId: string, memberId: string) => run(() => assignUser(todoId, memberId)),
+    unassign: (todoId: string, memberId: string) => run(() => unassignUser(todoId, memberId)),
   }
 }

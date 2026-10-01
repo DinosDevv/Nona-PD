@@ -29,22 +29,7 @@ export function UsersIcon() {
   )
 }
 
-export function NotesIcon() {
-  return (
-    <Icon>
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </Icon>
-  )
-}
 
-export function AddNoteIcon() {
-  return (
-    <Icon>
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-      <path d="M12 7v6M9 10h6" />
-    </Icon>
-  )
-}
 
 export function UserPlusIcon() {
   return (
@@ -72,6 +57,22 @@ export function XIcon() {
   )
 }
 
+export function ArrowUpIcon() {
+  return (
+    <Icon>
+      <path d="M12 19V5M5 12l7-7 7 7" />
+    </Icon>
+  )
+}
+
+export function ArrowDownIcon() {
+  return (
+    <Icon>
+      <path d="M12 5v14M19 12l-7 7-7-7" />
+    </Icon>
+  )
+}
+
 export function PlusIcon() {
   return (
     <Icon>
@@ -80,19 +81,86 @@ export function PlusIcon() {
   )
 }
 
-export function SunIcon() {
+export function HomeIcon() {
   return (
     <Icon>
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+      <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" />
     </Icon>
   )
 }
 
-export function MoonIcon() {
+export function ListIcon() {
   return (
     <Icon>
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+    </Icon>
+  )
+}
+
+export function FolderIcon() {
+  return (
+    <Icon>
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    </Icon>
+  )
+}
+
+export function BellIcon() {
+  return (
+    <Icon>
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </Icon>
+  )
+}
+
+export function LogOutIcon() {
+  return (
+    <Icon>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+    </Icon>
+  )
+}
+
+export function ArrowLeftIcon() {
+  return (
+    <Icon>
+      <path d="M19 12H5M12 19l-7-7 7-7" />
+    </Icon>
+  )
+}
+
+export function ChevronRightIcon() {
+  return (
+    <Icon>
+      <path d="m9 18 6-6-6-6" />
+    </Icon>
+  )
+}
+
+export function CalendarIcon() {
+  return (
+    <Icon>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </Icon>
+  )
+}
+
+export function SearchIcon() {
+  return (
+    <Icon>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.3-4.3" />
+    </Icon>
+  )
+}
+
+export function AlertIcon() {
+  return (
+    <Icon>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 8v4M12 16h.01" />
     </Icon>
   )
 }

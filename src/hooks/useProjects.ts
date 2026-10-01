@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { createProject, listProjects, type Project } from '../api/projects'
+import { createProject, listProjects, type ProjectSummary } from '../api/projects'
 import { useAuth } from '../lib/useAuth'
 
 export function useProjects() {
   const { session } = useAuth()
-  const [projects, setProjects] = useState<Project[] | null>(null)
+  const [projects, setProjects] = useState<ProjectSummary[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {

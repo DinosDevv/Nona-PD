@@ -1,10 +1,24 @@
 import { useState, type FormEvent } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useProject } from '../hooks/useProject'
-import TodoCard from '../components/TodoCard'
+import { filterAndSort, progressOf, STATE_LABELS, type SortKey, type StateFilter } from '../lib/todoView'
+import Avatar, { AvatarStack } from '../components/Avatar'
+import Modal from '../components/Modal'
+import TodoRow from '../components/TodoRow'
+import TodoDetail from '../components/TodoDetail'
 import PendingRequests from '../components/PendingRequests'
-import { PlusIcon } from '../components/icons'
+import MembersPanel from '../components/MembersPanel'
+import { ArrowLeftIcon, PlusIcon, SearchIcon } from '../components/icons'
 import './ProjectPage.css'
+
+type Tab = 'todos' | 'members'
+
+const FILTERS: { value: StateFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'undone', label: STATE_LABELS.undone },
+  { value: 'in_progress', label: STATE_LABELS.in_progress },
+  { value: 'done', label: STATE_LABELS.done },
+]
 
 export default function ProjectPage() {
   const { projectId } = useParams<{ projectId: string }>()
@@ -27,7 +41,21 @@ export default function ProjectPage() {
     requestAssignment,
     withdrawRequest,
     resolveRequest,
+    creatorId,
+    nonMembers,
+    assignable,
+    addMember,
+    setMemberRole,
+    removeMember,
+    assign,
+    unassign,
   } = useProject(projectId!)
+
+  const [tab, setTab] = useState<Tab>('todos')
+  const [filter, setFilter] = useState<StateFilter>('all')
+  const [search, setSearch] = useState('')
+  const [sort, setSort] = useState<SortKey>('deadline')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const [showForm, setShowForm] = useState(false)
   const [newTitle, setNewTitle] = useState('')
@@ -47,117 +75,178 @@ export default function ProjectPage() {
   if (loading) return <p className="muted">Loading…</p>
   if (!project) return <p className="muted">{error ?? "Project not found, or you're not a member."}</p>
 
+  const people = (ids: string[]) => ids.map((id) => ({ id, name: memberName(id) }))
+  const visibleTodos = filterAndSort(todos, filter, search, sort)
+  const selected = todos.find((t) => t.id === selectedId) ?? visibleTodos[0] ?? null
+  const progress = progressOf(todos)
+
   return (
     <div className="project">
-      <section className="stack">
-        <div>
-          <h1>{project.name}</h1>
-          {project.description && <p className="muted">{project.description}</p>}
+      <header className="project-header">
+        <Link to="/dashboard" className="back-link">
+          <ArrowLeftIcon /> Projects
+        </Link>
+        <div className="project-header__main">
+          <Avatar name={project.name} seed={project.id} size={44} square />
+          <div className="project-header__text">
+            <h1>{project.name}</h1>
+            {project.description && <p className="muted">{project.description}</p>}
+            <div className="project-header__progress">
+              <div className="progress">
+                <div className="progress__bar" style={{ width: `${progress.percent}%` }} />
+              </div>
+              <span className="muted small">{progress.done}/{progress.total} done</span>
+            </div>
+          </div>
+          <AvatarStack people={members.map((m) => ({ id: m.user_id, name: memberName(m.user_id) }))} size={32} />
         </div>
-        {error && <p className="error">{error}</p>}
 
-        {isManager && (
-          <PendingRequests
-            requests={todos.flatMap((t) =>
-              t.assignment_requests.map((r) => ({
-                id: r.id,
-                requesterName: memberName(r.user_id),
-                todoTitle: t.title,
-              })),
-            )}
-            onResolve={resolveRequest}
-          />
-        )}
-
-        <div className="page-header">
-          <h2>To-dos</h2>
-          <button
-            className={showForm ? 'button--ghost' : undefined}
-            onClick={() => setShowForm((v) => !v)}
-          >
-            {showForm ? 'Cancel' : <><PlusIcon /> New to-do</>}
+        <nav className="tabs" role="tablist">
+          <button role="tab" aria-selected={tab === 'todos'} onClick={() => setTab('todos')}>To-Do</button>
+          <button role="tab" aria-selected={tab === 'members'} onClick={() => setTab('members')}>
+            Members <span className="muted">{members.length}</span>
           </button>
-        </div>
+          <button role="tab" disabled title="Coming soon">Activity</button>
+          <button role="tab" disabled title="Coming soon">Files</button>
+        </nav>
+      </header>
 
-        {showForm && (
-          <form className="card stack" onSubmit={handleAddTodo}>
-            <input
-              placeholder="Title"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              required
-              autoFocus
+      {error && <p className="error">{error}</p>}
+
+      {tab === 'members' ? (
+        <MembersPanel
+          members={members}
+          responsibilities={responsibilities}
+          isManager={isManager}
+          creatorId={creatorId}
+          nonMembers={nonMembers}
+          onAdd={addMember}
+          onSetRole={setMemberRole}
+          onRemove={removeMember}
+        />
+      ) : (
+        <>
+          {isManager && (
+            <PendingRequests
+              requests={todos.flatMap((t) =>
+                t.assignment_requests.map((r) => ({
+                  id: r.id,
+                  requesterName: memberName(r.user_id),
+                  todoTitle: t.title,
+                })),
+              )}
+              onResolve={resolveRequest}
             />
-            <textarea
-              placeholder="Description (optional)"
-              value={newDescription}
-              onChange={(e) => setNewDescription(e.target.value)}
-              rows={2}
-            />
+          )}
+
+          <div className="board">
+            <section className="board__list">
+              <div className="toolbar">
+                <div className="segmented" role="group" aria-label="Filter by state">
+                  {FILTERS.map((f) => (
+                    <button key={f.value} aria-pressed={filter === f.value} onClick={() => setFilter(f.value)}>
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+                <button onClick={() => setShowForm(true)}>
+                  <PlusIcon /> New To-Do
+                </button>
+              </div>
+
+              <div className="toolbar">
+                <label className="search">
+                  <SearchIcon />
+                  <input placeholder="Search tasks…" value={search} onChange={(e) => setSearch(e.target.value)} />
+                </label>
+                <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} aria-label="Sort">
+                  <option value="deadline">Sort: Deadline</option>
+                  <option value="newest">Sort: Newest</option>
+                  <option value="title">Sort: Title</option>
+                </select>
+              </div>
+
+              {visibleTodos.length === 0 ? (
+                <p className="muted board__empty">{todos.length === 0 ? 'No to-dos yet.' : 'No to-dos match.'}</p>
+              ) : (
+                <ul className="todo-list">
+                  {visibleTodos.map((todo) => (
+                    <TodoRow
+                      key={todo.id}
+                      todo={todo}
+                      assignees={people(todo.todo_assignees.map((a) => a.user_id))}
+                      selected={selected?.id === todo.id}
+                      canEdit={canEdit(todo)}
+                      onSelect={() => setSelectedId(todo.id)}
+                      onToggleDone={() => changeState(todo.id, todo.state === 'done' ? 'undone' : 'done')}
+                    />
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section className="card board__detail">
+              {selected ? (
+                <TodoDetail
+                  key={selected.id}
+                  todo={selected}
+                  creator={selected.created_by ? { id: selected.created_by, name: memberName(selected.created_by) } : null}
+                  assignees={people(selected.todo_assignees.map((a) => a.user_id))}
+                  notes={selected.todo_notes.map((n) => ({
+                    id: n.id,
+                    authorName: memberName(n.user_id),
+                    body: n.body,
+                    createdAt: n.created_at,
+                  }))}
+                  requests={selected.assignment_requests.map((r) => ({
+                    id: r.id,
+                    userId: r.user_id,
+                    name: memberName(r.user_id),
+                  }))}
+                  assignable={people(assignable(selected).map((m) => m.user_id))}
+                  myRequestId={myRequestId(selected)}
+                  canEdit={canEdit(selected)}
+                  canAddNote={isAssignee(selected)}
+                  canRequest={canRequest(selected)}
+                  isManager={isManager}
+                  onChangeState={(state) => changeState(selected.id, state)}
+                  onAddNote={(body) => addNote(selected.id, body)}
+                  onRequest={() => requestAssignment(selected.id)}
+                  onWithdraw={withdrawRequest}
+                  onResolve={resolveRequest}
+                  onAssign={(uid) => assign(selected.id, uid)}
+                  onUnassign={(uid) => unassign(selected.id, uid)}
+                />
+              ) : (
+                <p className="muted">Select a to-do to see its details.</p>
+              )}
+            </section>
+          </div>
+        </>
+      )}
+
+      {showForm && (
+        <Modal title="New To-Do" description="You'll be assigned to it automatically." onClose={() => setShowForm(false)}>
+          <form className="stack" onSubmit={handleAddTodo}>
+            <label className="field">
+              Title
+              <input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} required autoFocus />
+            </label>
+            <label className="field">
+              Description
+              <textarea value={newDescription} onChange={(e) => setNewDescription(e.target.value)} rows={3} />
+            </label>
             <label className="field">
               Due (optional)
               <input type="datetime-local" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} />
             </label>
-            <button type="submit">Add to-do</button>
+            <div className="modal__actions">
+              <button type="button" className="button--ghost" onClick={() => setShowForm(false)}>Cancel</button>
+              <button type="submit">Add To-Do</button>
+            </div>
           </form>
-        )}
-
-        {todos.length === 0 && <p className="muted">No to-dos yet.</p>}
-        <ul className="stack">
-          {todos.map((todo) => (
-            <TodoCard
-              key={todo.id}
-              todo={todo}
-              creatorName={todo.created_by ? memberName(todo.created_by) : 'Unknown'}
-              assignees={todo.todo_assignees.map((a) => ({ id: a.user_id, name: memberName(a.user_id) }))}
-              notes={todo.todo_notes.map((n) => ({
-                id: n.id,
-                authorName: memberName(n.user_id),
-                body: n.body,
-                createdAt: n.created_at,
-              }))}
-              canEdit={canEdit(todo)}
-              canAddNote={isAssignee(todo)}
-              onChangeState={(state) => changeState(todo.id, state)}
-              onAddNote={(body) => addNote(todo.id, body)}
-              requests={todo.assignment_requests.map((r) => ({ id: r.id, name: memberName(r.user_id) }))}
-              myRequestId={myRequestId(todo)}
-              canRequest={canRequest(todo)}
-              canResolve={isManager}
-              onRequest={() => requestAssignment(todo.id)}
-              onWithdraw={(requestId) => withdrawRequest(requestId)}
-              onResolve={(requestId, approve) => resolveRequest(requestId, approve)}
-            />
-          ))}
-        </ul>
-      </section>
-
-      <aside className="stack">
-        <h2>Members</h2>
-        <ul className="stack">
-          {members.map((m) => (
-            <li key={m.user_id} className="card">
-              <div className="row" style={{ justifyContent: 'space-between' }}>
-                <strong>{m.profiles?.full_name}</strong>
-                {m.role === 'manager' ? (
-                  <span className="badge">PM</span>
-                ) : (
-                  <span className="badge badge--muted">Contributor</span>
-                )}
-              </div>
-              {m.title && <div className="muted">{m.title}</div>}
-              {m.profiles?.user_status && <div className="status">● {m.profiles.user_status}</div>}
-              {responsibilities.some((r) => r.user_id === m.user_id) && (
-                <ul className="responsibilities">
-                  {responsibilities
-                    .filter((r) => r.user_id === m.user_id)
-                    .map((r) => <li key={r.id}>{r.description}</li>)}
-                </ul>
-              )}
-            </li>
-          ))}
-        </ul>
-      </aside>
+        </Modal>
+      )}
     </div>
   )
 }

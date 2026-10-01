@@ -1,12 +1,18 @@
 import { supabase } from '../lib/supabase'
 import type { Tables } from '../types/database'
+import type { ProjectRole } from './members'
+import type { TodoState } from './todos'
 
 export type Project = Tables<'projects'>
+export type ProjectSummary = Project & {
+  todos: { state: TodoState }[]
+  project_members: { user_id: string; role: ProjectRole; profiles: { full_name: string } | null }[]
+}
 
-export async function listProjects(): Promise<Project[]> {
+export async function listProjects(): Promise<ProjectSummary[]> {
   const { data, error } = await supabase
     .from('projects')
-    .select('*')
+    .select('*, todos(state), project_members(user_id, role, profiles(full_name))')
     .order('created_at', { ascending: false })
   if (error) throw error
   return data
