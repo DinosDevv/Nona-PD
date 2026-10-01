@@ -22,10 +22,26 @@
 
   --radius: 8px;
 
+  color-scheme: light;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   color: var(--color-text);
   background: var(--color-bg);
+}
+
+/* Dark theme — toggled via data-theme on <html> (see lib/theme.ts) */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #111318;
+  --color-surface: #1a1d23;
+  --color-text: #e6e7ea;
+  --color-muted: #9aa0aa;
+  --color-border: #2c3038;
+  --color-primary: #5c7cfa;
+
+  --color-status-undone: #ff6b6b;
+  --color-status-in-progress: #ffa94d;
+  --color-status-done: #51cf66;
 }
 
 *,
@@ -36,6 +52,7 @@
 
 body {
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 h1,
@@ -68,8 +85,22 @@ ul {
 
 .row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
+}
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.page-header h1,
+.page-header h2 {
+  margin: 0;
 }
 
 .grid {
@@ -118,9 +149,19 @@ button {
   border-radius: var(--radius);
   background: var(--color-surface);
   color: var(--color-text);
+  min-width: 0;
+  max-width: 100%;
+}
+
+textarea {
+  resize: none;
 }
 
 button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: #fff;
@@ -139,6 +180,32 @@ button:disabled {
   color: var(--color-text);
 }
 
+.icon-button {
+  position: relative;
+  padding: var(--space-1) var(--space-2);
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.icon-button:hover,
+.icon-button[aria-pressed='true'] {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.icon-button__dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-status-in-progress);
+}
+
 .badge {
   font-size: 0.75rem;
   font-weight: 600;
@@ -146,6 +213,11 @@ button:disabled {
   border-radius: 999px;
   background: var(--color-primary);
   color: #fff;
+}
+
+.badge--muted {
+  background: var(--color-border);
+  color: var(--color-text);
 }
 
 .error {
@@ -160,4 +232,5 @@ button:disabled {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
+  padding: var(--space-4);
 }

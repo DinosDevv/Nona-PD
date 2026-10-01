@@ -28,7 +28,7 @@ export default function LoginPage() {
 
   return (
     <main className="page-center">
-      <form className="card stack" onSubmit={handleSubmit} style={{ width: 320 }}>
+      <form className="card stack" onSubmit={handleSubmit} style={{ width: 320, maxWidth: '100%' }}>
         <h1>Log in</h1>
         <label className="field">
           Email

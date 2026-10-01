@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useProjects } from '../hooks/useProjects'
+import { PlusIcon } from '../components/icons'
 
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { projects, error, create } = useProjects()
+  const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
 
@@ -16,8 +18,30 @@ export default function DashboardPage() {
 
   return (
     <div className="stack">
-      <h1>Projects</h1>
+      <div className="page-header">
+        <h1>Projects</h1>
+        <button
+          className={showForm ? 'button--ghost' : undefined}
+          onClick={() => setShowForm((v) => !v)}
+        >
+          {showForm ? 'Cancel' : <><PlusIcon /> New project</>}
+        </button>
+      </div>
       {error && <p className="error">{error}</p>}
+
+      {showForm && (
+        <form className="card stack" onSubmit={handleCreate} style={{ maxWidth: 420 }}>
+          <label className="field">
+            Name
+            <input value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
+          </label>
+          <label className="field">
+            Description
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
+          </label>
+          <button type="submit">Create project</button>
+        </form>
+      )}
 
       {projects === null ? (
         <p className="muted">Loading…</p>
@@ -35,19 +59,6 @@ export default function DashboardPage() {
           ))}
         </ul>
       )}
-
-      <form className="card stack" onSubmit={handleCreate} style={{ maxWidth: 420 }}>
-        <h2>New project</h2>
-        <label className="field">
-          Name
-          <input value={name} onChange={(e) => setName(e.target.value)} required />
-        </label>
-        <label className="field">
-          Description
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
-        </label>
-        <button type="submit">Create project</button>
-      </form>
     </div>
   )
 }

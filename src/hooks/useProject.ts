@@ -3,6 +3,7 @@ import { getProject, type Project } from '../api/projects'
 import { listMembers, listResponsibilities, type Member, type Responsibility } from '../api/members'
 import { createTodo, listTodos, setTodoState, type Todo, type TodoState } from '../api/todos'
 import { createNote } from '../api/notes'
+import { requestAssignment, resolveRequest, withdrawRequest } from '../api/requests'
 import { useAuth } from '../lib/useAuth'
 
 type ProjectData = {
@@ -46,6 +47,9 @@ export function useProject(projectId: string) {
     members.find((m) => m.user_id === id)?.profiles?.full_name ?? 'Unknown'
   const isAssignee = (todo: Todo) => todo.todo_assignees.some((a) => a.user_id === userId)
   const canEdit = (todo: Todo) => isManager || isAssignee(todo)
+  const myRequestId = (todo: Todo) =>
+    todo.assignment_requests.find((r) => r.user_id === userId)?.id ?? null
+  const canRequest = (todo: Todo) => !isManager && !isAssignee(todo)
 
   async function run(action: () => Promise<void>) {
     try {
@@ -71,5 +75,11 @@ export function useProject(projectId: string) {
     changeState: (todoId: string, state: TodoState) => run(() => setTodoState(todoId, state)),
     addNote: (todoId: string, body: string) =>
       run(() => createNote({ todoId, body, userId })),
+    myRequestId,
+    canRequest,
+    requestAssignment: (todoId: string) => run(() => requestAssignment({ todoId, userId })),
+    withdrawRequest: (requestId: string) => run(() => withdrawRequest(requestId)),
+    resolveRequest: (requestId: string, approve: boolean) =>
+      run(() => resolveRequest(requestId, approve)),
   }
 }
