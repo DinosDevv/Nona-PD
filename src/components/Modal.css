@@ -50,3 +50,32 @@
   padding-top: var(--space-4);
   border-top: 1px solid var(--color-border);
 }
+
+/* Phones: modals slide up as bottom sheets */
+@media (max-width: 640px) {
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    width: 100%;
+    max-height: calc(100vh - 48px);
+    padding: var(--space-5) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-bottom: none;
+  }
+
+  .modal__actions {
+    grid-template-columns: 1fr;
+  }
+
+  /* Primary action first on phones */
+  .modal__actions button[type='submit'] {
+    order: -1;
+  }
+
+  .danger-zone button {
+    width: 100%;
+  }
+}

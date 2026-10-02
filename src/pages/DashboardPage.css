@@ -46,3 +46,21 @@
   font-size: 1.5rem;
   font-weight: 600;
 }
+
+@media (max-width: 640px) {
+  .dashboard {
+    gap: var(--space-5);
+  }
+
+  .dashboard .page-header > button {
+    width: 100%;
+  }
+
+  .stat-tile {
+    padding: var(--space-3);
+  }
+
+  .stat-tile__value {
+    font-size: 1.25rem;
+  }
+}

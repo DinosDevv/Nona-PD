@@ -52,3 +52,13 @@
     animation: none;
   }
 }
+
+/* Phones: full width, above the bottom tab bar */
+@media (max-width: 800px) {
+  .toasts {
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    width: auto;
+  }
+}

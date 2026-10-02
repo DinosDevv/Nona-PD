@@ -145,16 +145,31 @@
   cursor: default;
 }
 
+
+/* Phones: title row, then assignees · due · status underneath */
 @media (max-width: 640px) {
   .todo-row {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'box main main'
+      'box due badge';
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
+    padding: var(--space-3);
   }
 
-  .todo-row__main {
-    flex-basis: calc(100% - 40px);
+  .todo-row > .state-box { grid-area: box; align-self: start; margin-top: 1px; }
+  .todo-row__main { grid-area: main; }
+  .todo-row__due { grid-area: due; margin-left: 0; }
+
+  .todo-row > .badge {
+    grid-area: badge;
+    min-width: 0;
   }
 
-  .todo-row__due {
-    margin-left: 32px;
+  /* My Tasks chevron isn't needed — the whole row is tappable */
+  .my-tasks__chevron {
+    display: none !important;
   }
 }

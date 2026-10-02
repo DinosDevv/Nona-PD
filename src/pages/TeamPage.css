@@ -47,13 +47,19 @@
 
 @media (max-width: 640px) {
   .team-row {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'avatar who edit'
+      'avatar status status';
+    column-gap: var(--space-3);
+    row-gap: var(--space-2);
   }
 
-  .team-row__status {
-    flex-basis: 100%;
-    padding-left: 52px;
-  }
+  .team-row > .avatar { grid-area: avatar; }
+  .team-row__who { grid-area: who; }
+  .team-row__status { grid-area: status; }
+  .team-row > button { grid-area: edit; }
 }
 
 .team-row__status-text {

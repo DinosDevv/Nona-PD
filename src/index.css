@@ -384,3 +384,51 @@ button:disabled {
 .status-dot--online { background: var(--color-status-done); }
 .status-dot--away { background: var(--color-status-in-progress); }
 .status-dot--offline { background: var(--color-muted); }
+
+/* ---------- Phones ---------- */
+@media (max-width: 800px) {
+  /* iOS zooms into any field under 16px — keep inputs at 16px */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  h1 { font-size: 1.3rem; }
+
+  /* Filter bars and tabs scroll sideways instead of wrapping */
+  .segmented,
+  .tabs {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .segmented::-webkit-scrollbar,
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .segmented button,
+  .tabs button {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* Comfortable tap targets */
+  .icon-button {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .mobile-hidden {
+    display: none !important;
+  }
+}
+
+@media (min-width: 801px) {
+  .mobile-only {
+    display: none !important;
+  }
+}

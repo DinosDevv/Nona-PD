@@ -59,22 +59,6 @@
   overflow-wrap: normal;
 }
 
-@media (max-width: 760px) {
-  .project-row {
-    flex-wrap: wrap;
-  }
-
-  .project-row__text {
-    flex-basis: calc(100% - 100px);
-  }
-
-  .project-row__progress,
-  .project-row__pm {
-    width: auto;
-    flex: 1;
-  }
-}
-
 .project-row__chevron {
   display: inline-flex;
   color: var(--color-muted);
@@ -83,4 +67,40 @@
 .project-row__status {
   flex-shrink: 0;
   width: 96px;
+}
+
+/* Phones: name on top, then progress + status, then PM */
+@media (max-width: 760px) {
+  .project-row {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'avatar text chevron'
+      'progress progress status'
+      'pm pm pm';
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .project-row > .avatar { grid-area: avatar; }
+  .project-row__text { grid-area: text; }
+  .project-row__chevron { grid-area: chevron; }
+
+  .project-row__progress {
+    grid-area: progress;
+    width: auto;
+  }
+
+  .project-row__status {
+    grid-area: status;
+    width: auto;
+    align-self: end;
+  }
+
+  .project-row__pm {
+    grid-area: pm;
+    width: auto;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-border);
+  }
 }

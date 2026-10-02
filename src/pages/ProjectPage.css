@@ -461,3 +461,94 @@
   height: 11px;
   box-shadow: 0 0 0 2px var(--color-surface);
 }
+
+/* ---------- Phones ---------- */
+@media (max-width: 800px) {
+  /* Header: avatar + title on top, then members/settings/status in a row */
+  .project-header__main {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .project-header__text {
+    flex-basis: calc(100% - 60px);
+  }
+
+  .project-header__progress .progress {
+    width: 100%;
+    flex: 1;
+  }
+
+  .project-header__side {
+    flex-basis: 100%;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .toolbar > button {
+    flex-shrink: 0;
+  }
+
+  .toolbar .segmented {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .search {
+    min-width: 0;
+  }
+
+  /* Detail panel: hidden until a to-do is tapped, then a full-screen sheet */
+  .board__detail {
+    display: none;
+  }
+
+  .board--detail-open .board__detail {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    overflow-y: auto;
+    border: none;
+    border-radius: 0;
+    padding: calc(var(--space-4) + env(safe-area-inset-top)) var(--space-4)
+      calc(var(--space-6) + env(safe-area-inset-bottom));
+  }
+
+  .board__back {
+    margin-bottom: var(--space-4);
+  }
+
+  .detail-grid {
+    grid-template-columns: 84px minmax(0, 1fr);
+  }
+
+  /* Pending requests: text on top, buttons below */
+  .pending-requests__row {
+    flex-wrap: wrap;
+  }
+
+  .add-member {
+    max-width: none;
+  }
+
+  .member-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .activity-feed li {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .activity-feed .muted {
+    flex-basis: 100%;
+    padding-left: 40px;
+  }
+
+  .dropzone {
+    flex-direction: column;
+    text-align: center;
+  }
+}

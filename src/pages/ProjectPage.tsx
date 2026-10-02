@@ -79,6 +79,8 @@ export default function ProjectPage() {
   const [sort, setSort] = useState<SortKey>('deadline')
   const [searchParams] = useSearchParams()
   const [selectedId, setSelectedId] = useState<string | null>(searchParams.get('todo'))
+  // Phones show the detail panel as a full-screen sheet; opening a link to a to-do opens it too
+  const [detailOpen, setDetailOpen] = useState(searchParams.has('todo'))
 
   const [showForm, setShowForm] = useState(false)
   const [newTitle, setNewTitle] = useState('')
@@ -188,7 +190,7 @@ export default function ProjectPage() {
             />
           )}
 
-          <div className="board">
+          <div className={`board${detailOpen ? ' board--detail-open' : ''}`}>
             <section className="board__list">
               <div className="toolbar">
                 <div className="segmented" role="group" aria-label="Filter by state">
@@ -226,7 +228,10 @@ export default function ProjectPage() {
                       assignees={people(todo.todo_assignees.map((a) => a.user_id))}
                       selected={selected?.id === todo.id}
                       canEdit={canEdit(todo)}
-                      onSelect={() => setSelectedId(todo.id)}
+                      onSelect={() => {
+                        setSelectedId(todo.id)
+                        setDetailOpen(true)
+                      }}
                       onToggleDone={() => changeState(todo.id, todo.state === 'done' ? 'undone' : 'done')}
                     />
                   ))}
@@ -235,6 +240,9 @@ export default function ProjectPage() {
             </section>
 
             <section className="card board__detail">
+              <button type="button" className="button--ghost mobile-only board__back" onClick={() => setDetailOpen(false)}>
+                <ArrowLeftIcon /> Back to to-dos
+              </button>
               {selected ? (
                 <TodoDetail
                   key={selected.id}
@@ -267,6 +275,7 @@ export default function ProjectPage() {
                   onDelete={() => {
                     removeTodo(selected.id)
                     setSelectedId(null)
+                    setDetailOpen(false)
                   }}
                   onAddNote={(body) => addNote(selected.id, body)}
                   onEditNote={editNote}
