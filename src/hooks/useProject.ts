@@ -16,6 +16,7 @@ import { assignUser, unassignUser } from '../api/assignees'
 import { createTodo, deleteTodo, listTodos, setTodoState, updateTodo, type Todo, type TodoState } from '../api/todos'
 import { createNote, deleteNote, updateNote } from '../api/notes'
 import { requestAssignment, resolveRequest, withdrawRequest } from '../api/requests'
+import { listTimeEntries, startTimer, stopTimer, type TimeEntry } from '../api/time'
 import { useAuth } from '../lib/useAuth'
 import { useToast } from '../lib/useToast'
 import { useRealtimeRefresh } from './useRealtimeRefresh'
@@ -26,6 +27,7 @@ type ProjectData = {
   responsibilities: Responsibility[]
   todos: Todo[]
   profiles: Profile[]
+  timeEntries: TimeEntry[]
 }
 
 export function useProject(projectId: string) {
@@ -46,9 +48,10 @@ export function useProject(projectId: string) {
       listResponsibilities(projectId),
       listTodos(projectId),
       listProfiles(),
+      listTimeEntries(projectId),
     ])
-      .then(([project, members, responsibilities, todos, profiles]) => {
-        if (!ignore) setData({ project, members, responsibilities, todos, profiles })
+      .then(([project, members, responsibilities, todos, profiles, timeEntries]) => {
+        if (!ignore) setData({ project, members, responsibilities, todos, profiles, timeEntries })
       })
       .catch((e: Error) => {
         if (!ignore) setError(e.message)
@@ -70,6 +73,7 @@ export function useProject(projectId: string) {
       { table: 'todo_notes' },
       { table: 'assignment_requests' },
       { table: 'profiles' },
+      { table: 'time_entries' },
     ],
     reload,
   )
@@ -85,6 +89,9 @@ export function useProject(projectId: string) {
   const myRequestId = (todo: Todo) =>
     todo.assignment_requests.find((r) => r.user_id === userId)?.id ?? null
   const canRequest = (todo: Todo) => !isManager && !isAssignee(todo)
+  // Same rule as start_timer in the database
+  const canTrackTime = (todo: Todo) => canEdit(todo) && todo.state !== 'done'
+  const timeFor = (todoId: string) => (data?.timeEntries ?? []).filter((e) => e.todo_id === todoId)
 
   const creatorId = data?.project?.created_by ?? null
   // Everyone in the team who isn't in this project yet (for the "Add member" picker)
@@ -124,6 +131,10 @@ export function useProject(projectId: string) {
     addNote: (todoId: string, body: string) => run(() => createNote({ todoId, body, userId })),
     editNote: (noteId: string, body: string) => run(() => updateNote(noteId, body)),
     removeNote: (noteId: string) => run(() => deleteNote(noteId)),
+    canTrackTime,
+    timeFor,
+    startTimer: (todoId: string) => run(() => startTimer(todoId), 'Timer started'),
+    stopTimer: () => run(() => stopTimer(), 'Timer stopped'),
     myRequestId,
     canRequest,
     requestAssignment: (todoId: string, message: string) =>

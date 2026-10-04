@@ -552,3 +552,129 @@
     text-align: center;
   }
 }
+
+/* Ideas tab */
+.idea-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-3);
+}
+
+.idea-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  text-align: left;
+  color: var(--color-text);
+  font-weight: 400;
+}
+
+.idea-card:hover:not(:disabled) {
+  background: var(--color-surface-2);
+  border-color: #2a3757;
+}
+
+.idea-card__title {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.idea-card__title svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-status-in-progress);
+}
+
+.idea-card__description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+
+.idea-card__footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.idea-card__badge {
+  margin-left: auto;
+}
+
+.idea-card__badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+.idea-card--converted {
+  opacity: 0.6;
+}
+
+.idea-card--converted .idea-card__title svg {
+  color: var(--color-muted);
+}
+
+.idea-modal__description {
+  white-space: pre-wrap;
+  font-size: 0.9375rem;
+}
+
+.idea-modal__converted {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-surface-2);
+  border-radius: var(--radius);
+}
+
+.idea-modal__actions {
+  justify-content: flex-end;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Time tracker (detail panel) */
+.time-tracker__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.time-tracker__head h3 {
+  margin: 0;
+}
+
+.time-tracker__total {
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-tracker button {
+  font-variant-numeric: tabular-nums;
+}
+
+.time-tracker .timer-dot {
+  margin-left: var(--space-1);
+}
+
+@media (max-width: 800px) {
+  .idea-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .toolbar > p {
+    flex-basis: 100%;
+  }
+}

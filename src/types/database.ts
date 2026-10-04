@@ -121,6 +121,61 @@ export type Database = {
           },
         ]
       }
+      ideas: {
+        Row: {
+          converted_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          project_id: string
+          title: string
+          todo_id: string | null
+        }
+        Insert: {
+          converted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          project_id: string
+          title: string
+          todo_id?: string | null
+        }
+        Update: {
+          converted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          project_id?: string
+          title?: string
+          todo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ideas_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ideas_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ideas_todo_id_fkey"
+            columns: ["todo_id"]
+            isOneToOne: false
+            referencedRelation: "todos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           actor_id: string | null
@@ -371,6 +426,45 @@ export type Database = {
           },
         ]
       }
+      time_entries: {
+        Row: {
+          ended_at: string | null
+          id: string
+          started_at: string
+          todo_id: string
+          user_id: string
+        }
+        Insert: {
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          todo_id: string
+          user_id?: string
+        }
+        Update: {
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          todo_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_todo_id_fkey"
+            columns: ["todo_id"]
+            isOneToOne: false
+            referencedRelation: "todos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       todo_assignees: {
         Row: {
           assigned_at: string
@@ -502,6 +596,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      convert_idea_to_task: { Args: { p_idea: string }; Returns: string }
       generate_deadline_notifications: { Args: never; Returns: undefined }
       is_project_manager: { Args: { pid: string }; Returns: boolean }
       is_project_member: {
@@ -530,6 +625,8 @@ export type Database = {
         Returns: undefined
       }
       profile_name: { Args: { uid: string }; Returns: string }
+      start_timer: { Args: { p_todo: string }; Returns: undefined }
+      stop_timer: { Args: never; Returns: undefined }
       storage_project_id: { Args: { object_name: string }; Returns: string }
       todo_project: { Args: { tid: string }; Returns: string }
     }

@@ -14,6 +14,7 @@ type Data = {
   to?: string
   role?: string
   approved?: boolean
+  idea_title?: string
 }
 
 // "moved Create API routes → In Progress"
@@ -50,6 +51,10 @@ function describe(entry: ActivityEntry) {
       return <>removed {user} from the project</>
     case 'role_changed':
       return <>made {user} {d.role === 'manager' ? 'a PM' : 'a contributor'}</>
+    case 'idea_added':
+      return <>added the idea <strong>{d.idea_title}</strong></>
+    case 'idea_converted':
+      return <>turned the idea <strong>{d.idea_title}</strong> into a task</>
     case 'file_uploaded':
       return <>uploaded <strong>{d.file_name}</strong></>
     case 'file_deleted':

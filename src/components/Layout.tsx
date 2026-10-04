@@ -6,6 +6,7 @@ import { useMyProfile } from '../hooks/useMyProfile'
 import { useMyTaskCount } from '../hooks/useMyTaskCount'
 import { useUnreadCount } from '../hooks/useNotifications'
 import Avatar from './Avatar'
+import RunningTimerPill from './RunningTimerPill'
 import { BellIcon, FolderIcon, HomeIcon, ListIcon, LogOutIcon, UsersIcon } from './icons'
 import './Layout.css'
 
@@ -55,6 +56,8 @@ export default function Layout() {
             <Count n={unread} />
           </NavLink>
         </nav>
+
+        <RunningTimerPill />
 
         <div className="sidebar__user">
           <Avatar name={name} seed={session?.user.id} size={32} />

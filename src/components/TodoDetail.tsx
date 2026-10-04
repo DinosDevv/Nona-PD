@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import type { Todo, TodoState } from '../api/todos'
 import { STATE_LABELS, formatDateTime, isOverdue } from '../lib/todoView'
 import { shortName } from '../lib/people'
@@ -20,6 +20,7 @@ type Props = {
   canAddNote: boolean
   canRequest: boolean
   isManager: boolean
+  timeTracker?: ReactNode
   onChangeState: (state: TodoState) => void
   onEdit: () => void
   onDelete: () => void
@@ -106,6 +107,7 @@ export default function TodoDetail({
   canAddNote,
   canRequest,
   isManager,
+  timeTracker,
   onChangeState,
   onEdit,
   onDelete,
@@ -239,6 +241,8 @@ export default function TodoDetail({
           </>
         )}
       </dl>
+
+      {timeTracker}
 
       <section className="stack">
         <h3>Notes</h3>

@@ -239,3 +239,27 @@ export function NotesIcon() {
     </Icon>
   )
 }
+
+export function LightbulbIcon() {
+  return (
+    <Icon>
+      <path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z" />
+    </Icon>
+  )
+}
+
+export function PlayIcon() {
+  return (
+    <Icon>
+      <path d="M6 4l14 8-14 8z" />
+    </Icon>
+  )
+}
+
+export function StopIcon() {
+  return (
+    <Icon>
+      <rect x="6" y="6" width="12" height="12" rx="2" />
+    </Icon>
+  )
+}

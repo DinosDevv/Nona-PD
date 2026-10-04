@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useProject } from '../hooks/useProject'
 import { useActivity } from '../hooks/useActivity'
 import { useProjectFiles } from '../hooks/useProjectFiles'
+import { useIdeas } from '../hooks/useIdeas'
 import { PROJECT_STATUS_LABELS } from '../lib/projectView'
 import { filterAndSort, progressOf, STATE_LABELS, type SortKey, type StateFilter } from '../lib/todoView'
 import Avatar, { AvatarStack } from '../components/Avatar'
@@ -16,10 +17,12 @@ import RequestAssignmentModal from '../components/RequestAssignmentModal'
 import EditTodoModal from '../components/EditTodoModal'
 import ActivityFeed from '../components/ActivityFeed'
 import FilesPanel from '../components/FilesPanel'
+import IdeasPanel from '../components/IdeasPanel'
+import TimeTracker from '../components/TimeTracker'
 import { ArrowLeftIcon, PlusIcon, SearchIcon, SettingsIcon } from '../components/icons'
 import './ProjectPage.css'
 
-type Tab = 'todos' | 'members' | 'activity' | 'files'
+type Tab = 'todos' | 'ideas' | 'members' | 'activity' | 'files'
 
 const FILTERS: { value: StateFilter; label: string }[] = [
   { value: 'all', label: 'All' },
@@ -49,6 +52,10 @@ export default function ProjectPage() {
     addNote,
     editNote,
     removeNote,
+    canTrackTime,
+    timeFor,
+    startTimer,
+    stopTimer,
     isManager,
     myRequestId,
     canRequest,
@@ -74,6 +81,7 @@ export default function ProjectPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const activity = useActivity(projectId!, tab === 'activity')
   const files = useProjectFiles(projectId!, tab === 'files')
+  const ideas = useIdeas(projectId!)
   const [filter, setFilter] = useState<StateFilter>('all')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortKey>('deadline')
@@ -95,6 +103,15 @@ export default function ProjectPage() {
       setNewDeadline('')
       setShowForm(false)
     }
+  }
+
+  // Jump to a to-do in the To-Do tab (and open its sheet on phones)
+  function openTodo(todoId: string) {
+    setTab('todos')
+    setFilter('all')
+    setSearch('')
+    setSelectedId(todoId)
+    setDetailOpen(true)
   }
 
   if (loading) return <p className="muted">Loading…</p>
@@ -138,6 +155,9 @@ export default function ProjectPage() {
 
         <nav className="tabs" role="tablist">
           <button role="tab" aria-selected={tab === 'todos'} onClick={() => setTab('todos')}>To-Do</button>
+          <button role="tab" aria-selected={tab === 'ideas'} onClick={() => setTab('ideas')}>
+            Ideas {ideas.ideas && <span className="muted">{ideas.ideas.filter((i) => !i.converted_at).length}</span>}
+          </button>
           <button role="tab" aria-selected={tab === 'members'} onClick={() => setTab('members')}>
             Members <span className="muted">{members.length}</span>
           </button>
@@ -150,7 +170,22 @@ export default function ProjectPage() {
 
       {error && <p className="error">{error}</p>}
 
-      {tab === 'activity' ? (
+      {tab === 'ideas' ? (
+        <IdeasPanel
+          ideas={ideas.ideas}
+          currentUserId={currentUserId}
+          isManager={isManager}
+          memberName={memberName}
+          onCreate={ideas.create}
+          onUpdate={ideas.update}
+          onDelete={ideas.remove}
+          onConvert={async (ideaId) => {
+            const todoId = await ideas.convert(ideaId)
+            if (todoId) openTodo(todoId)
+          }}
+          onOpenTask={openTodo}
+        />
+      ) : tab === 'activity' ? (
         <ActivityFeed entries={activity.entries} />
       ) : tab === 'files' ? (
         <FilesPanel
@@ -270,6 +305,16 @@ export default function ProjectPage() {
                   canAddNote={isAssignee(selected)}
                   canRequest={canRequest(selected)}
                   isManager={isManager}
+                  timeTracker={
+                    <TimeTracker
+                      entries={timeFor(selected.id)}
+                      currentUserId={currentUserId}
+                      canTrack={canTrackTime(selected)}
+                      memberName={memberName}
+                      onStart={() => startTimer(selected.id)}
+                      onStop={() => stopTimer()}
+                    />
+                  }
                   onChangeState={(state) => changeState(selected.id, state)}
                   onEdit={() => setEditingId(selected.id)}
                   onDelete={() => {
