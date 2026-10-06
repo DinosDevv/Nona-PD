@@ -173,3 +173,10 @@
     display: none !important;
   }
 }
+
+/* Someone is timing this to-do right now */
+.todo-row__live {
+  display: inline-block;
+  margin-left: var(--space-2);
+  vertical-align: middle;
+}

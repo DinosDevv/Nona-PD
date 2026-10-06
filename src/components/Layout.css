@@ -214,10 +214,11 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
-  background: rgba(242, 92, 92, 0.1);
-  border: 1px solid rgba(242, 92, 92, 0.3);
+  padding: var(--space-2) var(--space-1) var(--space-2) var(--space-3);
+  background: linear-gradient(135deg, rgba(242, 92, 92, 0.18), rgba(242, 92, 92, 0.06));
+  border: 1px solid rgba(242, 92, 92, 0.45);
   border-radius: var(--radius);
+  box-shadow: 0 0 18px rgba(242, 92, 92, 0.15);
 }
 
 .running-timer__link {
@@ -232,7 +233,8 @@
 }
 
 .running-timer__clock {
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 

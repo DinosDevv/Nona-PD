@@ -263,6 +263,7 @@ export default function ProjectPage() {
                       assignees={people(todo.todo_assignees.map((a) => a.user_id))}
                       selected={selected?.id === todo.id}
                       canEdit={canEdit(todo)}
+                      trackingNow={timeFor(todo.id).some((e) => !e.ended_at)}
                       onSelect={() => {
                         setSelectedId(todo.id)
                         setDetailOpen(true)

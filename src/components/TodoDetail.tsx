@@ -154,6 +154,8 @@ export default function TodoDetail({
       </div>
       {todo.description && <p className="todo-detail__description">{todo.description}</p>}
 
+      {timeTracker}
+
       <dl className="detail-grid">
         <dt>Status</dt>
         <dd>
@@ -241,8 +243,6 @@ export default function TodoDetail({
           </>
         )}
       </dl>
-
-      {timeTracker}
 
       <section className="stack">
         <h3>Notes</h3>

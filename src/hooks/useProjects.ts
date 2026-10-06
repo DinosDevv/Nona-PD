@@ -24,7 +24,13 @@ export function useProjects() {
 
   useRealtimeRefresh(
     'projects:list',
-    [{ table: 'projects' }, { table: 'project_members' }, { table: 'todos' }, { table: 'profiles' }],
+    [
+      { table: 'projects' },
+      { table: 'project_members' },
+      { table: 'todos' },
+      { table: 'profiles' },
+      { table: 'time_entries' },
+    ],
     reload,
   )
 

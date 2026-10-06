@@ -10,11 +10,12 @@ type Props = {
   assignees: { id: string; name: string }[]
   selected: boolean
   canEdit: boolean
+  trackingNow?: boolean
   onSelect: () => void
   onToggleDone: () => void
 }
 
-export default function TodoRow({ todo, assignees, selected, canEdit, onSelect, onToggleDone }: Props) {
+export default function TodoRow({ todo, assignees, selected, canEdit, trackingNow, onSelect, onToggleDone }: Props) {
   const overdue = isOverdue(todo)
   const done = todo.state === 'done'
 
@@ -41,7 +42,10 @@ export default function TodoRow({ todo, assignees, selected, canEdit, onSelect, 
       </button>
 
       <div className="todo-row__main">
-        <span className={`todo-row__title${done ? ' todo-row__title--done' : ''}`}>{todo.title}</span>
+        <span className={`todo-row__title${done ? ' todo-row__title--done' : ''}`}>
+          {todo.title}
+          {trackingNow && <span className="timer-dot todo-row__live" title="Someone is tracking time on this" />}
+        </span>
         <span className="todo-row__people">
           {assignees.length > 0 ? (
             <>

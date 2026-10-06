@@ -104,3 +104,15 @@
     border-top: 1px solid var(--color-border);
   }
 }
+
+.project-row__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.project-row__time svg {
+  width: 13px;
+  height: 13px;
+}

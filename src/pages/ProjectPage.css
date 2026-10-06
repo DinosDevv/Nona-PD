@@ -644,29 +644,162 @@
   border-top: 1px solid var(--color-border);
 }
 
-/* Time tracker (detail panel) */
-.time-tracker__head {
+/* Timer card (top of the detail panel) */
+.timer-card {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: linear-gradient(135deg, var(--color-surface-2), var(--color-surface));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: border-color 200ms, box-shadow 200ms;
 }
 
-.time-tracker__head h3 {
-  margin: 0;
+.timer-card--running {
+  border-color: rgba(242, 92, 92, 0.55);
+  box-shadow: 0 0 0 4px rgba(242, 92, 92, 0.08), 0 8px 28px rgba(242, 92, 92, 0.12);
+  background: linear-gradient(135deg, rgba(242, 92, 92, 0.1), var(--color-surface));
 }
 
-.time-tracker__total {
-  font-size: 1.125rem;
+.timer-card__main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.timer-card__button {
+  position: relative;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 50%;
+  box-shadow: 0 6px 18px rgba(59, 108, 246, 0.35);
+  transition: transform 120ms, box-shadow 200ms;
+}
+
+.timer-card__button svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.timer-card__button:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+.timer-card__button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.timer-card--running .timer-card__button {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  box-shadow: 0 6px 18px rgba(242, 92, 92, 0.4);
+}
+
+/* Expanding ring while running */
+.timer-card--running .timer-card__button::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid var(--color-danger);
+  animation: timer-ring 1.6s ease-out infinite;
+}
+
+@keyframes timer-ring {
+  from {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+.timer-card__button--idle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  box-shadow: none;
+}
+
+.timer-card__button--idle svg {
+  fill: none;
+}
+
+.timer-card__readout {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.timer-card__label {
+  color: var(--color-muted);
+  font-size: 0.6875rem;
   font-weight: 600;
-  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.time-tracker button {
-  font-variant-numeric: tabular-nums;
+.timer-card--running .timer-card__label {
+  color: var(--color-danger);
 }
 
-.time-tracker .timer-dot {
+.timer-card__clock {
+  margin: 2px 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.timer-card__sub {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.timer-card__others {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(242, 92, 92, 0.08);
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+}
+
+.timer-card__people {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font-size: 0.875rem;
+}
+
+.timer-card__people .timer-dot {
   margin-left: var(--space-1);
+}
+
+.timer-card__time {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timer-card--running .timer-card__button::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .timer-card__button {
+    transition: none;
+  }
 }
 
 @media (max-width: 800px) {

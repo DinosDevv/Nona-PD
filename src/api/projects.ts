@@ -6,14 +6,14 @@ import type { TodoState } from './todos'
 export type Project = Tables<'projects'>
 export type ProjectStatus = Enums<'project_status'>
 export type ProjectSummary = Project & {
-  todos: { state: TodoState }[]
+  todos: { state: TodoState; time_entries: { started_at: string; ended_at: string | null }[] }[]
   project_members: { user_id: string; role: ProjectRole; profiles: { full_name: string } | null }[]
 }
 
 export async function listProjects(): Promise<ProjectSummary[]> {
   const { data, error } = await supabase
     .from('projects')
-    .select('*, todos(state), project_members(user_id, role, profiles(full_name))')
+    .select('*, todos(state, time_entries(started_at, ended_at)), project_members(user_id, role, profiles(full_name))')
     .order('created_at', { ascending: false })
   if (error) throw error
   return data

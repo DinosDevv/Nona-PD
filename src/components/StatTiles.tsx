@@ -1,11 +1,15 @@
+import { ClockIcon } from './icons'
+
 type Props = {
   total: number
   active: number
   onHold: number
   completed: number
+  timeTracked: string
+  tracking?: boolean
 }
 
-export default function StatTiles({ total, active, onHold, completed }: Props) {
+export default function StatTiles({ total, active, onHold, completed, timeTracked, tracking }: Props) {
   const tiles = [
     { label: 'Total Projects', value: total, dot: null },
     { label: 'Active', value: active, dot: 'var(--color-status-done)' },
@@ -24,6 +28,14 @@ export default function StatTiles({ total, active, onHold, completed }: Props) {
           <span className="stat-tile__value">{t.value}</span>
         </li>
       ))}
+      <li className={`card stat-tile stat-tile--time${tracking ? ' stat-tile--tracking' : ''}`}>
+        <span className="stat-tile__label">
+          <ClockIcon />
+          Time Tracked
+          {tracking && <span className="timer-dot" title="Someone is tracking time now" />}
+        </span>
+        <span className="stat-tile__value">{timeTracked}</span>
+      </li>
     </ul>
   )
 }

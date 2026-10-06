@@ -1,11 +1,12 @@
 import type { TimeEntry } from '../api/time'
 
-export function entryMs(e: TimeEntry, now = Date.now()) {
+export function entryMs(e: { started_at: string; ended_at: string | null }, now = Date.now()) {
   return (e.ended_at ? Date.parse(e.ended_at) : now) - Date.parse(e.started_at)
 }
 
-// "2h 05m", "45m", "<1m"
+// "2h 05m", "45m", "<1m", "0m"
 export function formatDuration(ms: number) {
+  if (ms <= 0) return '0m'
   const minutes = Math.floor(ms / 60_000)
   if (minutes < 1) return '<1m'
   const hours = Math.floor(minutes / 60)

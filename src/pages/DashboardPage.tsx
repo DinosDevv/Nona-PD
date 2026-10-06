@@ -5,7 +5,9 @@ import ProjectRow from '../components/ProjectRow'
 import Modal from '../components/Modal'
 import StatTiles from '../components/StatTiles'
 import { PlusIcon } from '../components/icons'
-import { statusCounts } from '../lib/projectView'
+import { hasRunningTimer, projectTimeMs, statusCounts } from '../lib/projectView'
+import { formatDuration } from '../lib/timeView'
+import { useNow } from '../hooks/useNow'
 import { firstName } from '../lib/people'
 import { useMyProfile } from '../hooks/useMyProfile'
 import './DashboardPage.css'
@@ -28,6 +30,9 @@ export default function DashboardPage() {
   // Completed projects live on the Projects page
   const activeProjects = (projects ?? []).filter((p) => p.status !== 'completed')
   const completedCount = (projects ?? []).length - activeProjects.length
+  const tracking = (projects ?? []).some(hasRunningTimer)
+  const now = useNow(tracking)
+  const totalTime = (projects ?? []).reduce((sum, p) => sum + projectTimeMs(p, now), 0)
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault()
@@ -48,7 +53,9 @@ export default function DashboardPage() {
       </div>
       {error && <p className="error">{error}</p>}
 
-      {projects && <StatTiles {...statusCounts(projects)} />}
+      {projects && (
+        <StatTiles {...statusCounts(projects)} timeTracked={formatDuration(totalTime)} tracking={tracking} />
+      )}
 
       <section className="stack">
         <h2>Your Projects</h2>
