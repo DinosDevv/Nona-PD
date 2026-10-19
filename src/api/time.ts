@@ -33,3 +33,19 @@ export async function stopTimer(): Promise<void> {
   const { error } = await supabase.rpc('stop_timer')
   if (error) throw error
 }
+
+export type MyTimeEntry = TimeEntry & {
+  todos: { title: string; projects: { id: string; name: string } | null } | null
+}
+
+// Your entries that overlap the range (still running, or ended after `since`)
+export async function listMyTimeEntries(userId: string, since: Date): Promise<MyTimeEntry[]> {
+  const { data, error } = await supabase
+    .from('time_entries')
+    .select('id, todo_id, user_id, started_at, ended_at, todos(title, projects(id, name))')
+    .eq('user_id', userId)
+    .or(`ended_at.is.null,ended_at.gte.${since.toISOString()}`)
+    .order('started_at')
+  if (error) throw error
+  return data
+}

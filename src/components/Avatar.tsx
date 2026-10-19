@@ -1,15 +1,5 @@
-import { initials } from '../lib/people'
+import { colorFor, initials } from '../lib/people'
 import './Avatar.css'
-
-const PALETTE = ['#3b6cf6', '#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b', '#22c55e', '#0ea5e9', '#f97316']
-
-// Stable color per id/name so the same person always gets the same avatar
-function colorFor(seed: string) {
-  let hash = 0
-  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) | 0
-  return PALETTE[Math.abs(hash) % PALETTE.length]
-}
-
 
 type Props = {
   name: string

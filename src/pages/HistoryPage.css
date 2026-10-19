@@ -1,0 +1,220 @@
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 1000px;
+}
+
+.history h1 {
+  margin: 0 0 var(--space-1);
+}
+
+.history .segmented {
+  align-self: flex-start;
+}
+
+/* Summary tiles (reuse .stat-tile look from the dashboard) */
+.history__tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.history__tiles .stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.history__tiles .stat-tile__label {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.history__tiles .stat-tile__value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.history__of {
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+/* Bar chart */
+.history__chart {
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  overflow-x: auto;
+}
+
+.history__bars {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  height: 220px;
+  min-width: 100%;
+}
+
+.history__bars--30 { gap: 4px; }
+.history__bars--90 { gap: 2px; }
+
+.history__bar {
+  flex: 1;
+  min-width: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+.history__bar:hover:not(:disabled) {
+  background: transparent;
+}
+
+.history__track {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  border-radius: 6px;
+  background: var(--color-surface-2);
+  overflow: hidden;
+}
+
+.history__bar:hover .history__track {
+  background: var(--color-hover);
+}
+
+.history__bar.is-selected .history__track {
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.history__stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  min-height: 0;
+  border-radius: 6px 6px 0 0;
+  overflow: hidden;
+  transition: height 300ms ease-out;
+}
+
+.history__stack > span {
+  min-height: 2px;
+}
+
+.history__label {
+  height: 16px;
+  font-size: 0.6875rem;
+  text-align: center;
+  white-space: nowrap;
+  overflow: visible;
+  overflow-wrap: normal;
+}
+
+.history__bar.is-today .history__label {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Day breakdown + projects */
+.history__columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.history__columns h2 {
+  margin: 0;
+}
+
+.history__day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.history__day-total {
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.history__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.history__rows li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  font-size: 0.875rem;
+}
+
+.history__row-name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.history__row-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+.history__dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.history__share {
+  grid-column: 1 / -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .history__stack {
+    transition: none;
+  }
+}
+
+/* Phones */
+@media (max-width: 800px) {
+  .history__tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .history__tiles .stat-tile {
+    padding: var(--space-3);
+  }
+
+  .history__tiles .stat-tile__value {
+    font-size: 1.25rem;
+  }
+
+  .history__bars {
+    height: 180px;
+  }
+
+  /* 90 days scrolls sideways instead of squashing to hairlines */
+  .history__bars--90 {
+    min-width: 540px;
+  }
+
+  .history__columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

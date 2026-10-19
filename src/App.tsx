@@ -9,6 +9,7 @@ import MyTasksPage from './pages/MyTasksPage'
 import TeamPage from './pages/TeamPage'
 import ProjectsPage from './pages/ProjectsPage'
 import NotificationsPage from './pages/NotificationsPage'
+import HistoryPage from './pages/HistoryPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
       >
         <Route index element={<DashboardPage />} />
         <Route path="tasks" element={<MyTasksPage />} />
+        <Route path="history" element={<HistoryPage />} />
         <Route path="team" element={<TeamPage />} />
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="notifications" element={<NotificationsPage />} />

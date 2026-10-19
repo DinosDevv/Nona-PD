@@ -7,7 +7,7 @@ import { useMyTaskCount } from '../hooks/useMyTaskCount'
 import { useUnreadCount } from '../hooks/useNotifications'
 import Avatar from './Avatar'
 import RunningTimerPill from './RunningTimerPill'
-import { BellIcon, FolderIcon, HomeIcon, ListIcon, LogOutIcon, UsersIcon } from './icons'
+import { BellIcon, ClockIcon, FolderIcon, HomeIcon, ListIcon, LogOutIcon, UsersIcon } from './icons'
 import './Layout.css'
 
 function Count({ n }: { n: number }) {
@@ -41,6 +41,10 @@ export default function Layout() {
             <ListIcon />
             <span>My Tasks</span>
             <Count n={taskCount} />
+          </NavLink>
+          <NavLink to="/dashboard/history" className="nav__item">
+            <ClockIcon />
+            <span>History</span>
           </NavLink>
           <NavLink to="/dashboard/projects" className="nav__item">
             <FolderIcon />
