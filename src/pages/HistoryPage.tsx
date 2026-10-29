@@ -3,7 +3,11 @@ import { useTimeHistory } from '../hooks/useTimeHistory'
 import { barLabel, dayKey, longDate } from '../lib/historyView'
 import { formatDuration } from '../lib/timeView'
 import { colorFor } from '../lib/people'
+import { downloadText, hourMatrix, sessionsOn, sessionsToCsv } from '../lib/sessionView'
+import SessionList from '../components/SessionList'
+import { DownloadIcon } from '../components/icons'
 import './HistoryPage.css'
+import './Heatmap.css'
 
 const RANGES = [
   { days: 7, label: 'Last 7 days' },
@@ -11,16 +15,64 @@ const RANGES = [
   { days: 90, label: 'Last 90 days' },
 ]
 
+const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+// Weekday × hour, shaded by how much you coded in that slot over the range
+function Heatmap({ grid }: { grid: number[][] }) {
+  const max = Math.max(...grid.flat(), 1)
+  return (
+    <section className="card stack">
+      <div className="today-section-head">
+        <h2>When you code</h2>
+        <span className="muted small">Darker = more time in that hour</span>
+      </div>
+      <div className="heatmap" role="table" aria-label="Time coded by weekday and hour">
+        <span />
+        {Array.from({ length: 24 }, (_, h) => (
+          <span key={h} className="heatmap__hour">{h % 3 === 0 ? String(h).padStart(2, '0') : ''}</span>
+        ))}
+        {grid.map((row, d) => (
+          <div key={d} className="heatmap__row" role="row">
+            <span className="heatmap__day">{WEEKDAYS[d]}</span>
+            {row.map((ms, h) => (
+              <span
+                key={h}
+                className="heatmap__cell"
+                role="cell"
+                title={`${WEEKDAYS[d]} ${String(h).padStart(2, '0')}:00 — ${formatDuration(ms)}`}
+                style={{ opacity: ms ? 0.18 + 0.82 * (ms / max) : undefined }}
+                data-empty={ms ? undefined : ''}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function HistoryPage() {
   const [days, setDays] = useState(7)
-  const { history, error } = useTimeHistory(days)
+  const { history, sessions, now, error } = useTimeHistory(days)
   const [selectedKey, setSelectedKey] = useState(() => dayKey(new Date()))
 
   return (
     <div className="history">
-      <div>
-        <h1>Time History</h1>
-        <p className="muted">How much time you've tracked, day by day.</p>
+      <div className="page-header">
+        <div>
+          <h1>Time History</h1>
+          <p className="muted">How much time you've tracked, day by day.</p>
+        </div>
+        <button
+          className="button--ghost"
+          disabled={!sessions?.length}
+          onClick={() =>
+            sessions &&
+            downloadText(`nona-sessions-${dayKey(new Date(now))}.csv`, sessionsToCsv(sessions, now))
+          }
+        >
+          <DownloadIcon /> Export CSV
+        </button>
       </div>
 
       <div className="segmented" role="group" aria-label="Range">
@@ -120,6 +172,12 @@ export default function HistoryPage() {
                       ))}
                     </ul>
                   )}
+                  <h3 className="history__sessions-head">Sessions</h3>
+                  <SessionList
+                    sessions={sessionsOn(sessions ?? [], selected.key, now)}
+                    now={now}
+                    empty="No sessions on this day."
+                  />
                 </section>
 
                 <section className="card stack">
@@ -141,6 +199,8 @@ export default function HistoryPage() {
                   )}
                 </section>
               </div>
+
+              <Heatmap grid={hourMatrix(sessions ?? [], history.days[0].date, now)} />
             </>
           )
         })()

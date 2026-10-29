@@ -38,3 +38,9 @@ export async function updateMyProfile(
   if (error) throw error
   window.dispatchEvent(new Event(PROFILE_UPDATED))
 }
+
+export async function updateDailyGoal(userId: string, minutes: number): Promise<void> {
+  const { error } = await supabase.from('profiles').update({ daily_goal_minutes: minutes }).eq('id', userId)
+  if (error) throw error
+  window.dispatchEvent(new Event(PROFILE_UPDATED))
+}

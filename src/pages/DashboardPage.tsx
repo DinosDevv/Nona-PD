@@ -1,19 +1,25 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useProjects } from '../hooks/useProjects'
+import { useToday } from '../hooks/useToday'
 import ProjectRow from '../components/ProjectRow'
 import Modal from '../components/Modal'
 import StatTiles from '../components/StatTiles'
-import { PlusIcon } from '../components/icons'
+import SessionHero from '../components/SessionHero'
+import GoalRing from '../components/GoalRing'
+import SessionList from '../components/SessionList'
+import { ChevronRightIcon, FlameIcon, PlusIcon } from '../components/icons'
 import { hasRunningTimer, projectTimeMs, statusCounts } from '../lib/projectView'
 import { formatDuration } from '../lib/timeView'
+import { colorFor, firstName } from '../lib/people'
 import { useNow } from '../hooks/useNow'
-import { firstName } from '../lib/people'
 import { useMyProfile } from '../hooks/useMyProfile'
 import './DashboardPage.css'
+import './Today.css'
 
 function greeting(now = new Date()) {
   const h = now.getHours()
+  if (h < 5) return 'Coding late'
   if (h < 12) return 'Good morning'
   if (h < 18) return 'Good afternoon'
   return 'Good evening'
@@ -23,6 +29,7 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const { projects, error, create } = useProjects()
   const { profile } = useMyProfile()
+  const { today, now: todayNow, goalMs, setGoal } = useToday()
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -40,25 +47,85 @@ export default function DashboardPage() {
     if (project) navigate(`/dashboard/project/${project.id}`)
   }
 
+  const weekMax = Math.max(...(today?.week.days.map((d) => d.ms) ?? [0]), 1)
+
   return (
     <div className="dashboard">
       <div className="page-header">
         <div>
-          <h1>{greeting()}{profile ? `, ${firstName(profile.full_name)}` : ''} 👋</h1>
-          <p className="muted">Here's what's happening with your projects.</p>
+          <h1>{greeting(new Date(todayNow))}{profile ? `, ${firstName(profile.full_name)}` : ''} 👋</h1>
+          <p className="muted">
+            {new Date(todayNow).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
         </div>
-        <button onClick={() => setShowForm(true)}>
-          <PlusIcon /> New Project
-        </button>
       </div>
       {error && <p className="error">{error}</p>}
 
-      {projects && (
-        <StatTiles {...statusCounts(projects)} timeTracked={formatDuration(totalTime)} tracking={tracking} />
-      )}
+      {/* Today: what you're doing, goal, streak */}
+      <div className="today-grid">
+        <SessionHero />
+        <GoalRing ms={today?.todayMs ?? 0} goalMs={goalMs} onSetGoal={setGoal} />
+        <section className={`card today-card streak${(today?.streak ?? 0) > 0 ? ' streak--on' : ''}`}>
+          <span className="today-card__label">Streak</span>
+          <span className="streak__value">
+            <FlameIcon />
+            {today?.streak ?? 0} {today?.streak === 1 ? 'day' : 'days'}
+          </span>
+          <span className="muted small">Days in a row with 15m+ of coding</span>
+        </section>
+      </div>
 
+      <div className="today-columns">
+        <section className="card stack">
+          <div className="today-section-head">
+            <h2>Today's sessions</h2>
+            <span className="muted small">{formatDuration(today?.todayMs ?? 0)}</span>
+          </div>
+          {today === null ? (
+            <p className="muted small">Loading…</p>
+          ) : (
+            <SessionList sessions={today.todaySessions} now={todayNow} empty="Nothing logged yet today." />
+          )}
+        </section>
+
+        <section className="card stack">
+          <div className="today-section-head">
+            <h2>This week</h2>
+            <Link to="/dashboard/history" className="muted small today-link">
+              History <ChevronRightIcon />
+            </Link>
+          </div>
+          <div className="week-strip" aria-label="Time per day this week">
+            {today?.week.days.map((d, i) => (
+              <div key={d.key} className={`week-strip__day${i === 6 ? ' is-today' : ''}`} title={formatDuration(d.ms)}>
+                <span className="week-strip__track">
+                  <span className="week-strip__stack" style={{ height: `${(d.ms / weekMax) * 100}%` }}>
+                    {d.byProject.map((p) => (
+                      <span key={p.id} style={{ flexGrow: p.ms, background: colorFor(p.id) }} />
+                    ))}
+                  </span>
+                </span>
+                <span className="week-strip__label">{d.date.toLocaleDateString([], { weekday: 'narrow' })}</span>
+              </div>
+            ))}
+          </div>
+          <span className="muted small">
+            {formatDuration(today?.week.totalMs ?? 0)} this week · {today?.week.activeDays ?? 0} of 7 days
+          </span>
+        </section>
+      </div>
+
+      {/* Projects */}
       <section className="stack">
-        <h2>Your Projects</h2>
+        <div className="page-header">
+          <h2>Your Projects</h2>
+          <button className="button--ghost" onClick={() => setShowForm(true)}>
+            <PlusIcon /> New Project
+          </button>
+        </div>
+        {projects && (
+          <StatTiles {...statusCounts(projects)} timeTracked={formatDuration(totalTime)} tracking={tracking} />
+        )}
         {projects === null ? (
           <p className="muted">Loading…</p>
         ) : activeProjects.length === 0 ? (

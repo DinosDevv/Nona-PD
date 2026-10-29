@@ -254,18 +254,21 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          daily_goal_minutes: number
           full_name: string
           id: string
           user_status: string | null
         }
         Insert: {
           created_at?: string
+          daily_goal_minutes?: number
           full_name: string
           id: string
           user_status?: string | null
         }
         Update: {
           created_at?: string
+          daily_goal_minutes?: number
           full_name?: string
           id?: string
           user_status?: string | null
@@ -430,25 +433,41 @@ export type Database = {
         Row: {
           ended_at: string | null
           id: string
+          note: string | null
+          project_id: string
           started_at: string
-          todo_id: string
+          tags: string[]
+          todo_id: string | null
           user_id: string
         }
         Insert: {
           ended_at?: string | null
           id?: string
+          note?: string | null
+          project_id: string
           started_at?: string
-          todo_id: string
+          tags?: string[]
+          todo_id?: string | null
           user_id?: string
         }
         Update: {
           ended_at?: string | null
           id?: string
+          note?: string | null
+          project_id?: string
           started_at?: string
-          todo_id?: string
+          tags?: string[]
+          todo_id?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "time_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "time_entries_todo_id_fkey"
             columns: ["todo_id"]
@@ -625,8 +644,12 @@ export type Database = {
         Returns: undefined
       }
       profile_name: { Args: { uid: string }; Returns: string }
+      start_session: {
+        Args: { p_project: string; p_todo?: string }
+        Returns: string
+      }
       start_timer: { Args: { p_todo: string }; Returns: undefined }
-      stop_timer: { Args: never; Returns: undefined }
+      stop_timer: { Args: { p_at?: string }; Returns: string }
       storage_project_id: { Args: { object_name: string }; Returns: string }
       todo_project: { Args: { tid: string }; Returns: string }
     }

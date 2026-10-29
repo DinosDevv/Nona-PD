@@ -1,0 +1,109 @@
+/* Start-session button (when nothing is running) */
+.start-session {
+  width: 100%;
+  justify-content: flex-start;
+  padding: var(--space-2) var(--space-3);
+  box-shadow: 0 6px 18px rgba(59, 108, 246, 0.25);
+}
+
+.start-session svg {
+  fill: currentColor;
+}
+
+/* Nav: section label + "More" (phones only) */
+.nav__section {
+  margin: var(--space-4) 0 var(--space-1);
+  padding: 0 var(--space-3);
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.nav__more,
+.more-sheet__backdrop {
+  display: none;
+}
+
+@media (min-width: 801px) {
+  .start-session {
+    margin-top: auto;
+  }
+
+  .start-session + .sidebar__user {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 800px) {
+  .nav__section,
+  .nav__item--team {
+    display: none;
+  }
+
+  /* Bottom bar: Today · History · Tasks · Projects · More */
+  .nav__more {
+    display: flex;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    font-weight: 500;
+  }
+
+  .nav__more:hover:not(:disabled) {
+    background: transparent;
+  }
+
+  .more-sheet__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 25;
+    background: rgba(3, 7, 18, 0.5);
+  }
+
+  .more-sheet {
+    position: fixed;
+    right: var(--space-3);
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-2);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Inside the sheet, items are normal rows, not bottom-bar tabs */
+  .more-sheet .nav__item {
+    flex-direction: row;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    font-size: 0.9375rem;
+    text-align: left;
+  }
+
+  .more-sheet .nav__count {
+    position: static;
+    margin-left: auto;
+  }
+
+  /* Top bar: compact start button */
+  .start-session {
+    width: auto;
+    margin-left: auto;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .start-session span {
+    display: none;
+  }
+
+  .start-session + .sidebar__user {
+    margin-left: 0;
+  }
+}

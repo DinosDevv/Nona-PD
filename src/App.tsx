@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import RequireAuth from './components/RequireAuth'
 import PresenceProvider from './components/PresenceProvider'
+import SessionProvider from './components/SessionProvider'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectPage from './pages/ProjectPage'
@@ -22,7 +23,9 @@ export default function App() {
         element={
           <RequireAuth>
             <PresenceProvider>
-              <Layout />
+              <SessionProvider>
+                <Layout />
+              </SessionProvider>
             </PresenceProvider>
           </RequireAuth>
         }

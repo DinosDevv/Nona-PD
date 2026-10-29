@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { listMyTimeEntries, type MyTimeEntry } from '../api/time'
+import { listMySessions, type Session } from '../api/time'
 import { buildHistory } from '../lib/historyView'
 import { useAuth } from '../lib/useAuth'
 import { useNow } from './useNow'
@@ -9,7 +9,7 @@ import { useRealtimeRefresh } from './useRealtimeRefresh'
 export function useTimeHistory(days: number) {
   const { session } = useAuth()
   const userId = session!.user.id
-  const [entries, setEntries] = useState<MyTimeEntry[] | null>(null)
+  const [entries, setEntries] = useState<Session[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [version, setVersion] = useState(0)
   const reload = useCallback(() => setVersion((v) => v + 1), [])
@@ -18,7 +18,7 @@ export function useTimeHistory(days: number) {
     let ignore = false
     const today = new Date()
     const since = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (days - 1))
-    listMyTimeEntries(userId, since)
+    listMySessions(userId, since)
       .then((data) => !ignore && setEntries(data))
       .catch((e: Error) => !ignore && setError(e.message))
     return () => {
@@ -32,5 +32,5 @@ export function useTimeHistory(days: number) {
   const now = useNow(entries?.some((e) => !e.ended_at) ?? false, 30_000)
   const history = useMemo(() => (entries ? buildHistory(entries, days, now) : null), [entries, days, now])
 
-  return { history, error }
+  return { history, sessions: entries, now, error }
 }

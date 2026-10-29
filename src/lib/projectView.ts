@@ -22,12 +22,9 @@ export function projectManager(project: ProjectSummary) {
 
 // Total tracked time on a project; running timers count up to now
 export function projectTimeMs(project: ProjectSummary, now = Date.now()) {
-  return project.todos.reduce(
-    (sum, t) => sum + t.time_entries.reduce((s, e) => s + entryMs(e, now), 0),
-    0,
-  )
+  return project.time_entries.reduce((sum, e) => sum + entryMs(e, now), 0)
 }
 
 export function hasRunningTimer(project: ProjectSummary) {
-  return project.todos.some((t) => t.time_entries.some((e) => !e.ended_at))
+  return project.time_entries.some((e) => !e.ended_at)
 }

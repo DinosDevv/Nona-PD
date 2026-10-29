@@ -16,7 +16,7 @@ import { assignUser, unassignUser } from '../api/assignees'
 import { createTodo, deleteTodo, listTodos, setTodoState, updateTodo, type Todo, type TodoState } from '../api/todos'
 import { createNote, deleteNote, updateNote } from '../api/notes'
 import { requestAssignment, resolveRequest, withdrawRequest } from '../api/requests'
-import { listTimeEntries, startTimer, stopTimer, type TimeEntry } from '../api/time'
+import { listTimeEntries, type TimeEntry } from '../api/time'
 import { useAuth } from '../lib/useAuth'
 import { useToast } from '../lib/useToast'
 import { useRealtimeRefresh } from './useRealtimeRefresh'
@@ -133,8 +133,6 @@ export function useProject(projectId: string) {
     removeNote: (noteId: string) => run(() => deleteNote(noteId)),
     canTrackTime,
     timeFor,
-    startTimer: (todoId: string) => run(() => startTimer(todoId), 'Timer started'),
-    stopTimer: () => run(() => stopTimer(), 'Timer stopped'),
     myRequestId,
     canRequest,
     requestAssignment: (todoId: string, message: string) =>

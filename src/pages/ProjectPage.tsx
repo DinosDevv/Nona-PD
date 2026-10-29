@@ -4,6 +4,7 @@ import { useProject } from '../hooks/useProject'
 import { useActivity } from '../hooks/useActivity'
 import { useProjectFiles } from '../hooks/useProjectFiles'
 import { useIdeas } from '../hooks/useIdeas'
+import { useSession } from '../lib/useSession'
 import { PROJECT_STATUS_LABELS } from '../lib/projectView'
 import { filterAndSort, progressOf, STATE_LABELS, type SortKey, type StateFilter } from '../lib/todoView'
 import Avatar, { AvatarStack } from '../components/Avatar'
@@ -54,8 +55,6 @@ export default function ProjectPage() {
     removeNote,
     canTrackTime,
     timeFor,
-    startTimer,
-    stopTimer,
     isManager,
     myRequestId,
     canRequest,
@@ -82,6 +81,7 @@ export default function ProjectPage() {
   const activity = useActivity(projectId!, tab === 'activity')
   const files = useProjectFiles(projectId!, tab === 'files')
   const ideas = useIdeas(projectId!)
+  const session = useSession()
   const [filter, setFilter] = useState<StateFilter>('all')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortKey>('deadline')
@@ -312,8 +312,8 @@ export default function ProjectPage() {
                       currentUserId={currentUserId}
                       canTrack={canTrackTime(selected)}
                       memberName={memberName}
-                      onStart={() => startTimer(selected.id)}
-                      onStop={() => stopTimer()}
+                      onStart={() => session.start(selected.project_id, selected.id)}
+                      onStop={() => session.stop()}
                     />
                   }
                   onChangeState={(state) => changeState(selected.id, state)}

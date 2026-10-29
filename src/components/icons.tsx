@@ -263,3 +263,21 @@ export function StopIcon() {
     </Icon>
   )
 }
+
+export function MoreIcon() {
+  return (
+    <Icon>
+      <circle cx="5" cy="12" r="1.5" />
+      <circle cx="12" cy="12" r="1.5" />
+      <circle cx="19" cy="12" r="1.5" />
+    </Icon>
+  )
+}
+
+export function FlameIcon() {
+  return (
+    <Icon>
+      <path d="M12 22c4 0 7-2.7 7-6.8 0-3.9-2.6-6.2-4.4-8.6-.4 2-1.5 3.3-2.8 3.6.3-2.9-.8-5.9-3.3-8.2.1 3.7-3.5 6.4-3.5 11.6C5 19.3 8 22 12 22z" />
+    </Icon>
+  )
+}

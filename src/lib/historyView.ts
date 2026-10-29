@@ -1,5 +1,5 @@
 // Display helpers for the History page. They only work on already-loaded entries.
-import type { MyTimeEntry } from '../api/time'
+import type { Session } from '../api/time'
 
 export type DayTotal = {
   key: string
@@ -28,7 +28,7 @@ export function splitByDay(e: { started_at: string; ended_at: string | null }, n
   return parts
 }
 
-export function buildHistory(entries: MyTimeEntry[], days: number, now = Date.now()) {
+export function buildHistory(entries: Session[], days: number, now = Date.now()) {
   const today = new Date(now)
   const list: DayTotal[] = []
   const byKey = new Map<string, DayTotal>()
@@ -41,7 +41,7 @@ export function buildHistory(entries: MyTimeEntry[], days: number, now = Date.no
 
   const projectTotals = new Map<string, { id: string; name: string; ms: number }>()
   for (const e of entries) {
-    const project = e.todos?.projects
+    const project = e.projects
     if (!project) continue
     for (const part of splitByDay(e, now)) {
       const day = byKey.get(part.key)
